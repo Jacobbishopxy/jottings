@@ -1,0 +1,9 @@
+[package]
+name = "jotting"
+authors = ["JacobX <jacobbishopxy@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+connectorx = { version = "0.2.0", features = ["src_sqlite", "src_postgres", "src_mysql", "dst_arrow"] }
+polars = "0.16.0"
