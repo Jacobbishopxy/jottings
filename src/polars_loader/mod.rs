@@ -2,10 +2,9 @@
 
 // use itertools::Itertools;
 use polars::prelude::{
-    AnyValue, BooleanChunked, DataType, Date32Chunked, Date64Chunked, Float32Chunked,
-    Float64Chunked, Int16Chunked, Int32Chunked, Int64Chunked, Int8Chunked, Series, TakeRandom,
-    Time64NanosecondChunked, UInt16Chunked, UInt32Chunked, UInt64Chunked, UInt8Chunked,
-    Utf8Chunked,
+    AnyValue, BooleanChunked, DataType, Float32Chunked, Float64Chunked, Int16Chunked, Int32Chunked,
+    Int64Chunked, Int8Chunked, Series, TakeRandom, UInt16Chunked, UInt32Chunked, UInt64Chunked,
+    UInt8Chunked, Utf8Chunked,
 };
 
 #[derive(Debug)]
@@ -32,15 +31,12 @@ impl<'a> From<AnyValue<'a>> for MyValue {
             AnyValue::Int64(_) => todo!(),
             AnyValue::Float32(_) => todo!(),
             AnyValue::Float64(_) => todo!(),
-            AnyValue::Date32(_) => todo!(),
-            AnyValue::Date64(_) => todo!(),
-            AnyValue::Time64(_, _) => todo!(),
             _ => unimplemented!(),
         }
     }
 }
 
- pub struct MySeries {
+pub struct MySeries {
     data: Series,
     dtype: DataType,
 }
@@ -66,9 +62,6 @@ impl IntoIterator for MySeries {
             DataType::Float32 => todo!(),
             DataType::Float64 => todo!(),
             DataType::Utf8 => todo!(),
-            DataType::Date32 => todo!(),
-            DataType::Date64 => todo!(),
-            DataType::Time64(_) => todo!(),
             _ => unimplemented!(),
         }
     }
@@ -87,9 +80,6 @@ pub enum MySeriesIntoIterator {
     F32(Float32Chunked, usize, usize),
     F64(Float64Chunked, usize, usize),
     Str(Utf8Chunked, usize, usize),
-    Date32(Date32Chunked, usize, usize),
-    Date64(Date64Chunked, usize, usize),
-    Time64(Time64NanosecondChunked, usize, usize),
 }
 
 impl Iterator for MySeriesIntoIterator {
@@ -109,20 +99,18 @@ impl Iterator for MySeriesIntoIterator {
                     Some(res)
                 }
             }
-            MySeriesIntoIterator::I8(arr, len, step) => todo!(),
-            MySeriesIntoIterator::I16(arr, len, step) => todo!(),
-            MySeriesIntoIterator::I32(arr, len, step) => todo!(),
-            MySeriesIntoIterator::I64(arr, len, step) => todo!(),
-            MySeriesIntoIterator::U8(arr, len, step) => todo!(),
-            MySeriesIntoIterator::U16(arr, len, step) => todo!(),
-            MySeriesIntoIterator::U32(arr, len, step) => todo!(),
-            MySeriesIntoIterator::U64(arr, len, step) => todo!(),
-            MySeriesIntoIterator::F32(arr, len, step) => todo!(),
-            MySeriesIntoIterator::F64(arr, len, step) => todo!(),
-            MySeriesIntoIterator::Str(arr, len, step) => todo!(),
-            MySeriesIntoIterator::Date32(arr, len, step) => todo!(),
-            MySeriesIntoIterator::Date64(arr, len, step) => todo!(),
-            MySeriesIntoIterator::Time64(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::I8(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::I16(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::I32(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::I64(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::U8(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::U16(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::U32(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::U64(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::F32(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::F64(arr, len, step) => todo!(),
+            // MySeriesIntoIterator::Str(arr, len, step) => todo!(),
+            _ => todo!(),
         }
     }
 }
