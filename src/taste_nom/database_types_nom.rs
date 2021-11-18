@@ -3,10 +3,8 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
-use nom::branch::alt;
-use nom::bytes::complete::tag;
-use nom::character::complete::{alpha1, space0};
-use nom::character::streaming::space1;
+use nom::bytes::complete::{tag, take_until};
+use nom::character::complete::{alpha0, alpha1, space0};
 use nom::combinator::recognize;
 use nom::sequence::{delimited, separated_pair};
 use nom::IResult;
@@ -14,12 +12,13 @@ use nom::IResult;
 // error
 #[derive(Debug)]
 pub(crate) enum ParsingError {
-    InvalidDbType,
-    InvalidDataType,
+    InvalidDbType(String),
+    InvalidDataType(String, String),
+    ParsingError(String),
 }
 
 // database type
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub(crate) enum DbType {
     Mysql,
     Postgres,
@@ -35,13 +34,13 @@ impl FromStr for DbType {
             "MYSQL" => Ok(DbType::Mysql),
             "POSTGRES" => Ok(DbType::Postgres),
             "SQLITE" => Ok(DbType::Sqlite),
-            _ => Err(ParsingError::InvalidDbType),
+            _ => Err(ParsingError::InvalidDbType(s.to_string())),
         }
     }
 }
 
 // value type
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub(crate) enum ValueType {
     Bool,
     U8,
@@ -131,17 +130,10 @@ fn test_get_tmap() {
 
 // parse database and data type
 fn get_types(input: &str) -> IResult<&str, (&str, &str)> {
-    let ctn = separated_pair(alpha1, tag(":"), alpha1);
-    let mut par = delimited(tag("["), ctn, tag("]"));
-
-    par(input)
-}
-
-fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
     let sql_type = |s| alpha1(s);
-    let data_type_1 = |s| alpha1(s);
-    let data_type_2 = recognize(separated_pair(alpha1, space0, alpha1));
-    let ctn = separated_pair(sql_type, tag(":"), alt((data_type_1, data_type_2)));
+    let data_type = |s| alpha1(s);
+
+    let ctn = separated_pair(sql_type, tag(":"), data_type);
     let mut par = delimited(tag("["), ctn, tag("]"));
 
     par(input)
@@ -149,37 +141,134 @@ fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
 
 #[test]
 fn test_get_types() {
-    // assert_eq!(
-    //     get_types("[MYSQL:BOOLEAN]").unwrap(),
-    //     ("", ("MYSQL", "BOOLEAN"))
-    // );
+    assert_eq!(
+        get_types("[MYSQL:BOOLEAN]").unwrap(),
+        ("", ("MYSQL", "BOOLEAN"))
+    );
+
     // this cannot be achieved because there is a space between "DOUBLE" and "PRECISION"
     // assert_eq!(
     //     get_types("[POSTGRES:DOUBLE PRECISION]").unwrap(),
     //     ("", ("POSTGRES", "DOUBLE PRECISION"))
     // );
+}
 
-    let foo = get_types("[MYSQL:CHAR(N)]");
+fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
+    let sql_type = |s| alpha1(s);
+    let data_type = |s| recognize(separated_pair(alpha1, space0, alpha0))(s);
 
-    println!("{:?}", foo);
+    let ctn = separated_pair(sql_type, tag(":"), data_type);
+    let mut par = delimited(tag("["), ctn, tag("]"));
+
+    par(input)
 }
 
 #[test]
 fn test_get_types2() {
+    assert_eq!(
+        get_types2("[MYSQL:BOOLEAN]").unwrap(),
+        ("", ("MYSQL", "BOOLEAN"))
+    );
+
+    assert_eq!(
+        get_types2("[POSTGRES:DOUBLE PRECISION]").unwrap(),
+        ("", ("POSTGRES", "DOUBLE PRECISION"))
+    );
+
+    // this cannot be achieved because there is a "(N)" cannot be recognized
     // assert_eq!(
-    //     get_types("[MYSQL:BOOLEAN]").unwrap(),
-    //     ("", ("MYSQL", "BOOLEAN"))
+    //     get_types2("[SQLITE:CHAR(N)]").unwrap(),
+    //     ("", ("SQLITE", "CHAR(N)"))
     // );
-    // assert_eq!(
-    //     get_types("[POSTGRES:DOUBLE PRECISION]").unwrap(),
-    //     ("", ("POSTGRES", "DOUBLE PRECISION"))
-    // );
+}
 
-    let foo = get_types2("[POSTGRES:DOUBLE PRECISION]");
+fn get_types3(input: &str) -> IResult<&str, (&str, &str)> {
+    let sql_type = |s| alpha1(s);
+    let data_type = |s| take_until("]")(s);
+    let ctn = separated_pair(sql_type, tag(":"), data_type);
+    let mut par = delimited(tag("["), ctn, tag("]"));
 
-    println!("{:?}", foo);
+    par(input)
+}
 
-    let bar = get_types2("[POSTGRES:SMALLSERIAL]");
+#[test]
+fn test_get_types3() {
+    assert_eq!(
+        get_types3("[MYSQL:BOOLEAN]").unwrap(),
+        ("", ("MYSQL", "BOOLEAN"))
+    );
 
-    println!("{:?}", bar);
+    assert_eq!(
+        get_types3("[POSTGRES:DOUBLE PRECISION]").unwrap(),
+        ("", ("POSTGRES", "DOUBLE PRECISION"))
+    );
+
+    assert_eq!(
+        get_types3("[SQLITE:CHAR(N)]").unwrap(),
+        ("", ("SQLITE", "CHAR(N)"))
+    );
+}
+
+// str -> (DbType, ValueType)
+fn from_str_to_type(input: &str) -> Result<(DbType, ValueType), ParsingError> {
+    match get_types3(input) {
+        Ok((_, (db_type, data_type))) => match db_type.parse::<DbType>() {
+            Ok(dt) => {
+                let rvt = match dt {
+                    DbType::Mysql => {
+                        MYSQL_TMAP
+                            .get(data_type)
+                            .ok_or(ParsingError::InvalidDataType(
+                                "MYSQL".to_string(),
+                                data_type.to_string(),
+                            ))
+                    }
+                    DbType::Postgres => {
+                        POSTGRES_TMAP
+                            .get(data_type)
+                            .ok_or(ParsingError::InvalidDataType(
+                                "POSTGRES".to_string(),
+                                data_type.to_string(),
+                            ))
+                    }
+                    DbType::Sqlite => {
+                        SQLITE_TMAP
+                            .get(data_type)
+                            .ok_or(ParsingError::InvalidDataType(
+                                "SQLITE".to_string(),
+                                data_type.to_string(),
+                            ))
+                    }
+                };
+
+                match rvt {
+                    Ok(vt) => Ok((dt, vt.clone())),
+                    Err(_) => Err(ParsingError::InvalidDataType(
+                        db_type.to_string(),
+                        data_type.to_string(),
+                    )),
+                }
+            }
+            Err(_) => Err(ParsingError::InvalidDbType(db_type.to_string())),
+        },
+        _ => Err(ParsingError::ParsingError(input.to_string())),
+    }
+}
+
+#[test]
+fn test_cvt() {
+    assert_eq!(
+        from_str_to_type("[MYSQL:BOOLEAN]").unwrap(),
+        (DbType::Mysql, ValueType::Bool)
+    );
+
+    assert_eq!(
+        from_str_to_type("[POSTGRES:DOUBLE PRECISION]").unwrap(),
+        (DbType::Postgres, ValueType::F64)
+    );
+
+    assert_eq!(
+        from_str_to_type("[SQLITE:CHAR(N)]").unwrap(),
+        (DbType::Sqlite, ValueType::String)
+    );
 }
