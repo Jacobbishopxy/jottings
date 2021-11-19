@@ -3,10 +3,11 @@
 use std::collections::HashMap;
 use std::str::FromStr;
 
+use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
-use nom::character::complete::{alpha0, alpha1, space0};
-use nom::combinator::recognize;
-use nom::sequence::{delimited, separated_pair};
+use nom::character::complete::{alpha0, alpha1, alphanumeric1, space0, space1};
+use nom::combinator::{peek, recognize};
+use nom::sequence::{delimited, pair, separated_pair, tuple};
 use nom::IResult;
 
 // error
@@ -163,6 +164,17 @@ fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
     par(input)
 }
 
+fn get_types3(input: &str) -> IResult<&str, (&str, &str)> {
+    let sql_type = |s| alpha1(s);
+    let data_type_1 = |s| recognize(separated_pair(alpha1, space1, alpha1))(s);
+    let data_type_2 = |s| alpha1(s);
+    let data_type = |s| alt((data_type_1, data_type_2))(s);
+    let ctn = separated_pair(sql_type, tag(":"), data_type);
+    let mut par = delimited(tag("["), ctn, tag("]"));
+
+    par(input)
+}
+
 #[test]
 fn test_get_types2() {
     assert_eq!(
@@ -180,19 +192,7 @@ fn test_get_types2() {
     //     get_types2("[SQLITE:CHAR(N)]").unwrap(),
     //     ("", ("SQLITE", "CHAR(N)"))
     // );
-}
 
-fn get_types3(input: &str) -> IResult<&str, (&str, &str)> {
-    let sql_type = |s| alpha1(s);
-    let data_type = |s| take_until("]")(s);
-    let ctn = separated_pair(sql_type, tag(":"), data_type);
-    let mut par = delimited(tag("["), ctn, tag("]"));
-
-    par(input)
-}
-
-#[test]
-fn test_get_types3() {
     assert_eq!(
         get_types3("[MYSQL:BOOLEAN]").unwrap(),
         ("", ("MYSQL", "BOOLEAN"))
@@ -202,16 +202,81 @@ fn test_get_types3() {
         get_types3("[POSTGRES:DOUBLE PRECISION]").unwrap(),
         ("", ("POSTGRES", "DOUBLE PRECISION"))
     );
+}
+
+fn get_types4(input: &str) -> IResult<&str, (&str, &str)> {
+    let sql_type = |s| alpha1(s);
+    let data_type = |s| take_until("]")(s);
+    let ctn = separated_pair(sql_type, tag(":"), data_type);
+    let mut par = delimited(tag("["), ctn, tag("]"));
+
+    par(input)
+}
+
+#[test]
+fn test_get_types4() {
+    assert_eq!(
+        get_types4("[MYSQL:BOOLEAN]").unwrap(),
+        ("", ("MYSQL", "BOOLEAN"))
+    );
 
     assert_eq!(
-        get_types3("[SQLITE:CHAR(N)]").unwrap(),
+        get_types4("[POSTGRES:DOUBLE PRECISION]").unwrap(),
+        ("", ("POSTGRES", "DOUBLE PRECISION"))
+    );
+
+    assert_eq!(
+        get_types4("[SQLITE:CHAR(N)]").unwrap(),
         ("", ("SQLITE", "CHAR(N)"))
+    );
+}
+
+fn get_types5(input: &str) -> IResult<&str, (&str, &str)> {
+    let sql_type = |s| alpha1(s);
+    let data_type_1 = |s| recognize(separated_pair(alpha1, space1, alpha1))(s);
+    let tpl = |s| tuple((tag("("), alphanumeric1, tag(")")))(s);
+    let pr = |s| pair(alpha1, tpl)(s);
+    let data_type_2 = |s| recognize(pr)(s);
+    let data_type_3 = |s| alphanumeric1(s);
+    let data_type = |s| alt((data_type_1, data_type_2, data_type_3))(s);
+
+    let ctn = separated_pair(sql_type, tag(":"), data_type);
+    let mut par = delimited(tag("["), ctn, tag("]"));
+
+    par(input)
+}
+
+#[test]
+fn test_get_types5() {
+    assert_eq!(
+        get_types5("[MYSQL:BOOLEAN]").unwrap(),
+        ("", ("MYSQL", "BOOLEAN"))
+    );
+
+    assert_eq!(
+        get_types5("[POSTGRES:DOUBLE PRECISION]").unwrap(),
+        ("", ("POSTGRES", "DOUBLE PRECISION"))
+    );
+
+    assert_eq!(
+        get_types5("[POSTGRES:FLOAT8]").unwrap(),
+        ("", ("POSTGRES", "FLOAT8"))
+    );
+
+    assert_eq!(
+        get_types5("[SQLITE:CHAR(N)]").unwrap(),
+        ("", ("SQLITE", "CHAR(N)"))
+    );
+
+    assert_eq!(
+        get_types5("[MYSQL:TINYINT(1)]").unwrap(),
+        ("", ("MYSQL", "TINYINT(1)"))
     );
 }
 
 // str -> (DbType, ValueType)
 fn from_str_to_type(input: &str) -> Result<(DbType, ValueType), ParsingError> {
-    match get_types3(input) {
+    match get_types5(input) {
         Ok((_, (db_type, data_type))) => match db_type.parse::<DbType>() {
             Ok(dt) => {
                 let rvt = match dt {
@@ -268,7 +333,17 @@ fn test_cvt() {
     );
 
     assert_eq!(
+        from_str_to_type("[POSTGRES:FLOAT8]").unwrap(),
+        (DbType::Postgres, ValueType::F64)
+    );
+
+    assert_eq!(
         from_str_to_type("[SQLITE:CHAR(N)]").unwrap(),
         (DbType::Sqlite, ValueType::String)
+    );
+
+    assert_eq!(
+        from_str_to_type("[MYSQL:TINYINT(1)]").unwrap(),
+        (DbType::Mysql, ValueType::Bool)
     );
 }
