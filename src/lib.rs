@@ -1,2 +1,3 @@
-pub mod polars_loader;
-pub mod taste_nom;
+mod polars_loader;
+mod std_traits;
+mod taste_nom;

@@ -6,21 +6,23 @@ use std::str::FromStr;
 use nom::branch::alt;
 use nom::bytes::complete::{tag, take_until};
 use nom::character::complete::{alpha0, alpha1, alphanumeric1, space0, space1};
-use nom::combinator::{peek, recognize};
+use nom::combinator::recognize;
 use nom::sequence::{delimited, pair, separated_pair, tuple};
 use nom::IResult;
 
 // error
+#[allow(dead_code)]
 #[derive(Debug)]
-pub(crate) enum ParsingError {
+enum ParsingError {
     InvalidDbType(String),
     InvalidDataType(String, String),
     ParsingError(String),
 }
 
 // database type
+#[allow(dead_code)]
 #[derive(Debug, PartialEq, Eq)]
-pub(crate) enum DbType {
+enum DbType {
     Mysql,
     Postgres,
     Sqlite,
@@ -42,7 +44,7 @@ impl FromStr for DbType {
 
 // value type
 #[derive(Debug, PartialEq, Eq, Clone)]
-pub(crate) enum ValueType {
+pub enum ValueType {
     Bool,
     U8,
     U16,
@@ -59,7 +61,7 @@ pub(crate) enum ValueType {
 
 lazy_static::lazy_static! {
     // str -> mysql data types
-    pub(crate) static ref MYSQL_TMAP: HashMap<&'static str, ValueType> = {
+    pub static ref MYSQL_TMAP: HashMap<&'static str, ValueType> = {
         HashMap::from([
             ("TINYINT(1)", ValueType::Bool),
             ("BOOLEAN", ValueType::Bool),
@@ -80,7 +82,7 @@ lazy_static::lazy_static! {
     };
 
     // str -> postgres data types
-    pub(crate) static ref POSTGRES_TMAP: HashMap<&'static str, ValueType> = {
+    pub static ref POSTGRES_TMAP: HashMap<&'static str, ValueType> = {
         HashMap::from([
             ("BOOL", ValueType::Bool),
             ("CHAR", ValueType::I8),
@@ -106,7 +108,7 @@ lazy_static::lazy_static! {
     };
 
     // str -> sqlite data types
-    pub(crate) static ref SQLITE_TMAP: HashMap<&'static str, ValueType> = {
+    pub static ref SQLITE_TMAP: HashMap<&'static str, ValueType> = {
         HashMap::from([
             ("BOOLEAN", ValueType::Bool),
             ("INTEGER", ValueType::I32),
@@ -130,6 +132,7 @@ fn test_get_tmap() {
 // ------------------------------------------------------------------------------
 
 // parse database and data type
+#[allow(dead_code)]
 fn get_types(input: &str) -> IResult<&str, (&str, &str)> {
     let sql_type = |s| alpha1(s);
     let data_type = |s| alpha1(s);
@@ -154,6 +157,7 @@ fn test_get_types() {
     // );
 }
 
+#[allow(dead_code)]
 fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
     let sql_type = |s| alpha1(s);
     let data_type = |s| recognize(separated_pair(alpha1, space0, alpha0))(s);
@@ -164,11 +168,13 @@ fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
     par(input)
 }
 
+#[allow(dead_code)]
 fn get_types3(input: &str) -> IResult<&str, (&str, &str)> {
     let sql_type = |s| alpha1(s);
     let data_type_1 = |s| recognize(separated_pair(alpha1, space1, alpha1))(s);
     let data_type_2 = |s| alpha1(s);
     let data_type = |s| alt((data_type_1, data_type_2))(s);
+
     let ctn = separated_pair(sql_type, tag(":"), data_type);
     let mut par = delimited(tag("["), ctn, tag("]"));
 
@@ -204,9 +210,11 @@ fn test_get_types2() {
     );
 }
 
+#[allow(dead_code)]
 fn get_types4(input: &str) -> IResult<&str, (&str, &str)> {
     let sql_type = |s| alpha1(s);
     let data_type = |s| take_until("]")(s);
+
     let ctn = separated_pair(sql_type, tag(":"), data_type);
     let mut par = delimited(tag("["), ctn, tag("]"));
 
@@ -275,6 +283,7 @@ fn test_get_types5() {
 }
 
 // str -> (DbType, ValueType)
+#[allow(dead_code)]
 fn from_str_to_type(input: &str) -> Result<(DbType, ValueType), ParsingError> {
     match get_types5(input) {
         Ok((_, (db_type, data_type))) => match db_type.parse::<DbType>() {

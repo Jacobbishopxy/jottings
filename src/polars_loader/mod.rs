@@ -7,8 +7,9 @@ use polars::prelude::{
     UInt8Chunked, Utf8Chunked,
 };
 
+#[allow(dead_code)]
 #[derive(Debug)]
-pub enum MyValue {
+enum MyValue {
     String(String),
     Bool(bool),
     Number(f64),
@@ -36,7 +37,7 @@ impl<'a> From<AnyValue<'a>> for MyValue {
     }
 }
 
-pub struct MySeries {
+struct MySeries {
     data: Series,
     dtype: DataType,
 }
@@ -67,7 +68,8 @@ impl IntoIterator for MySeries {
     }
 }
 
-pub enum MySeriesIntoIterator {
+#[allow(dead_code)]
+enum MySeriesIntoIterator {
     Bool(BooleanChunked, usize, usize),
     I8(Int8Chunked, usize, usize),
     I16(Int16Chunked, usize, usize),
