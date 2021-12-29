@@ -1,11 +1,15 @@
 //! deref/as_ref/as_mut
 
+// describes all the behavior of a type:
+// - area: calculates the area of a shape
+// - zoom: used for mutating the type's fields
 trait Shape {
     fn area(&self) -> f64;
 
     fn zoom(&mut self, factor: f64);
 }
 
+// concrete type #1
 struct Rectangle {
     width: f64,
     height: f64,
@@ -22,12 +26,15 @@ impl Shape for Rectangle {
     }
 }
 
+// impl AsMut<dyn Shape>
+// lifetime parameter 'a is required for `dyn Shape`
 impl<'a> AsMut<dyn Shape + 'a> for Rectangle {
     fn as_mut(&mut self) -> &mut (dyn Shape + 'a) {
         self
     }
 }
 
+// concrete type #2
 struct Triangle {
     base: f64,
     height: f64,
@@ -70,11 +77,13 @@ impl<'a> AsMut<dyn Shape + 'a> for Circle {
     }
 }
 
+// zoom_1 is more flexible than zoom_2
 #[allow(dead_code)]
 fn zoom_1<T: AsMut<dyn Shape>>(shape: &mut T, factor: f64) {
     shape.as_mut().zoom(factor);
 }
 
+// zoom_2 only accepts `Box<dyn Shape>`
 #[allow(dead_code)]
 fn zoom_2(shape: &mut Box<dyn Shape>, factor: f64) {
     shape.zoom(factor);
@@ -116,6 +125,7 @@ fn test_zoom_vec_shape() {
         Box::new(Circle { radius: 10.0 }),
     ];
 
+    // here we can use both zoom_1 and zoom_2
     vec.iter_mut().for_each(|shape| {
         zoom_1(shape, 2.0);
         zoom_2(shape, 2.0);
@@ -145,6 +155,7 @@ fn test_zoom_vec_rectangle() {
         },
     ];
 
+    // zoom_2 is no longer applicable
     vec.iter_mut().for_each(|shape| {
         zoom_1(shape, 2.0);
         // no more allowed here
