@@ -2,6 +2,8 @@
 
 use mongodb::{bson::oid::ObjectId, error::Error as MongoError, options::ClientOptions, Client};
 
+const DB_NAME: &str = "graph";
+
 pub type MongoResult<T> = Result<T, MongoError>;
 
 pub struct MongoClient {
@@ -21,6 +23,10 @@ impl MongoClient {
         let db_names = self.client.list_database_names(None, None).await?;
 
         Ok(db_names)
+    }
+
+    pub fn collection<T>(&self, name: &str) -> mongodb::Collection<T> {
+        self.client.database(DB_NAME).collection(name)
     }
 }
 
