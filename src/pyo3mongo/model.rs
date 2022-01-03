@@ -39,3 +39,58 @@ impl From<&Vertex> for Document {
         bson::to_document(source).unwrap()
     }
 }
+
+/// DTO for `Edge`
+#[derive(Serialize, Deserialize)]
+pub struct EdgeDto<'a> {
+    pub source: ObjectId,
+    pub target: ObjectId,
+    pub weight: Option<f64>,
+    pub label: Option<&'a str>,
+}
+
+impl<'a> EdgeDto<'a> {
+    pub fn to_edge(&self, cat: &str) -> Edge {
+        Edge {
+            id: None,
+            cat: cat.to_owned(),
+            source: self.source.to_owned(),
+            target: self.target.to_owned(),
+            weight: self.weight,
+            label: self.label.map(str::to_string),
+        }
+    }
+}
+
+/// DTO for `Vertex`
+#[derive(Serialize, Deserialize)]
+pub struct VertexDto<'a> {
+    pub name: &'a str,
+}
+
+impl<'a> VertexDto<'a> {
+    pub fn to_vertex(&self, cat: &str) -> Vertex {
+        Vertex {
+            id: None,
+            cat: cat.to_owned(),
+            name: self.name.to_owned(),
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub enum FindEdgeByVertexDto {
+    Source(ObjectId),
+    Target(ObjectId),
+    Bidirectional(ObjectId),
+}
+
+impl FindEdgeByVertexDto {
+    pub fn id(&self) -> ObjectId {
+        match self {
+            FindEdgeByVertexDto::Source(id) => id.to_owned(),
+            FindEdgeByVertexDto::Target(id) => id.to_owned(),
+            FindEdgeByVertexDto::Bidirectional(id) => id.to_owned(),
+        }
+    }
+}

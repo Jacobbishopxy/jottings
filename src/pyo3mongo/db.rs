@@ -19,12 +19,18 @@ impl MongoClient {
         Ok(MongoClient { client })
     }
 
+    pub fn client(&self) -> mongodb::Client {
+        self.client.clone()
+    }
+
     pub async fn show_dbs(&self) -> MongoResult<Vec<String>> {
         let db_names = self.client.list_database_names(None, None).await?;
 
         Ok(db_names)
     }
 
+    /// specify which collection to be operated, and what schema
+    /// is to be used (by generic parameter `T`)
     pub fn collection<T>(&self, name: &str) -> mongodb::Collection<T> {
         self.client.database(DB_NAME).collection(name)
     }

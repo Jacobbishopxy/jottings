@@ -17,4 +17,7 @@ pub enum Pyo3MongoError {
 
     #[error(transparent)]
     Mongo(#[from] mongodb::error::Error),
+
+    #[error(transparent)]
+    De(#[from] bson::de::Error),
 }
