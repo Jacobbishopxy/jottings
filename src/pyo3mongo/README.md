@@ -1,5 +1,9 @@
 # Mongo Aggregation
 
+learning materials: [The MongoDB Aggregation Framework](https://university.mongodb.com/courses/M121/about)
+
+## Note
+
 1. $match
 
    - A $match stage may contain a $text query operator, but it must be the first stage in a pipeline

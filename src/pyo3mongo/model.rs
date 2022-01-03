@@ -8,19 +8,19 @@ use mongodb::bson::{self, oid::ObjectId, Document};
 use serde::{Deserialize, Serialize};
 
 /// edge between two vertices
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Edge {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
     pub cat: String,
     pub source: ObjectId,
-    pub target: ObjectId,
+    pub targets: Vec<ObjectId>,
     pub weight: Option<f64>,
     pub label: Option<String>,
 }
 
 /// vertex
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Vertex {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
@@ -41,21 +41,37 @@ impl From<&Vertex> for Document {
 }
 
 /// DTO for `Edge`
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct EdgeDto<'a> {
     pub source: ObjectId,
-    pub target: ObjectId,
+    pub targets: Vec<ObjectId>,
     pub weight: Option<f64>,
     pub label: Option<&'a str>,
 }
 
+#[allow(dead_code)]
 impl<'a> EdgeDto<'a> {
-    pub fn to_edge(&self, cat: &str) -> Edge {
+    pub fn new(
+        source: ObjectId,
+        targets: Vec<ObjectId>,
+        weight: Option<f64>,
+        label: Option<&'a str>,
+    ) -> Self {
+        EdgeDto {
+            source,
+            targets,
+            weight,
+            label,
+        }
+    }
+
+    // take ownership of the `EdgeDto` and create an `Edge`
+    pub fn to_edge(self, cat: &str) -> Edge {
         Edge {
             id: None,
             cat: cat.to_owned(),
-            source: self.source.to_owned(),
-            target: self.target.to_owned(),
+            source: self.source,
+            targets: self.targets,
             weight: self.weight,
             label: self.label.map(str::to_string),
         }
@@ -68,8 +84,14 @@ pub struct VertexDto<'a> {
     pub name: &'a str,
 }
 
+#[allow(dead_code)]
 impl<'a> VertexDto<'a> {
-    pub fn to_vertex(&self, cat: &str) -> Vertex {
+    pub fn new(name: &'a str) -> Self {
+        VertexDto { name }
+    }
+
+    // take ownership of the `VertexDto` and create an `Vertex`
+    pub fn to_vertex(self, cat: &str) -> Vertex {
         Vertex {
             id: None,
             cat: cat.to_owned(),
@@ -85,6 +107,7 @@ pub enum FindEdgeByVertexDto {
     Bidirectional(ObjectId),
 }
 
+#[allow(dead_code)]
 impl FindEdgeByVertexDto {
     pub fn id(&self) -> ObjectId {
         match self {

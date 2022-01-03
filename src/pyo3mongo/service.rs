@@ -16,11 +16,13 @@ use super::{Pyo3MongoError, Pyo3MongoResult};
 /// A graphService contains two collections:
 /// 1. ${cat}_vertex
 /// 1. ${cat}_edge
+#[allow(dead_code)]
 pub struct GraphService {
     client: MongoClient,
     cat: String,
 }
 
+#[allow(dead_code)]
 impl GraphService {
     pub async fn new(uri: &str, cat: &str) -> Pyo3MongoResult<Self> {
         Ok(GraphService {
@@ -66,7 +68,19 @@ impl GraphService {
         Ok(res?)
     }
 
-    pub async fn get_vertexes(&self) -> Pyo3MongoResult<Vec<Vertex>> {
+    pub async fn get_vertexes(&self, ids: Vec<ObjectId>) -> Pyo3MongoResult<Vec<Vertex>> {
+        let res = self
+            .collection_vertex()
+            .find(Some(bson::doc! {"_id": bson::doc! {"$in": ids}}), None)
+            .await?
+            .map(|v| v.unwrap())
+            .collect::<Vec<Vertex>>()
+            .await;
+
+        Ok(res)
+    }
+
+    pub async fn get_all_vertexes(&self) -> Pyo3MongoResult<Vec<Vertex>> {
         let mut cursor = self.collection_vertex().find(None, None).await?;
 
         let mut res = Vec::new();
@@ -97,13 +111,13 @@ impl GraphService {
 
     /// look up source & target vertexes whether existed
     async fn check_edge_legitimacy<'a>(&self, dto: &EdgeDto<'a>) -> Pyo3MongoResult<()> {
-        let source = self.get_vertex(dto.source).await?;
-        let target = self.get_vertex(dto.target).await?;
+        // make sure source vertex existed
+        self.get_vertex(dto.source).await?;
 
-        if source.cat != target.cat {
-            return Err(Pyo3MongoError::Common(
-                "source and target are not in the same category",
-            ));
+        // make sure target vertexes existed
+        let targets = self.get_vertexes(dto.targets.clone()).await?;
+        if targets.len() != dto.targets.len() {
+            return Err(Pyo3MongoError::Common("target vertex not in this graph"));
         }
 
         Ok(())
@@ -137,7 +151,19 @@ impl GraphService {
         Ok(res?)
     }
 
-    pub async fn get_edges(&self) -> Pyo3MongoResult<Vec<Edge>> {
+    pub async fn get_edges(&self, ids: Vec<ObjectId>) -> Pyo3MongoResult<Vec<Edge>> {
+        let res = self
+            .collection_edge()
+            .find(Some(bson::doc! {"_id": bson::doc! {"$in": ids}}), None)
+            .await?
+            .map(|v| v.unwrap())
+            .collect::<Vec<Edge>>()
+            .await;
+
+        Ok(res)
+    }
+
+    pub async fn get_all_edges(&self) -> Pyo3MongoResult<Vec<Edge>> {
         let mut cursor = self.collection_edge().find(None, None).await?;
 
         let mut res = Vec::new();
@@ -292,5 +318,104 @@ impl GraphService {
         Ok(delete_vertex?)
     }
 
-    // TODO: the rest of the methods are about search and query
+    pub async fn get_graph_from_vertex_by_label(
+        &self,
+        vertex_id: ObjectId,
+        label: Option<&str>,
+        depth: Option<i32>,
+    ) -> Pyo3MongoResult<Vec<Edge>> {
+        let pipeline = vec![
+            bson::doc! {"$match": bson::doc! {"_id": vertex_id}},
+            bson::doc! {"$graphLookup": bson::doc! {
+                "from": format!("{}_edge", self.cat),
+                "startWith": "$_id",
+                "connectFromField": "source",
+                "connectToField": "target",
+                "maxDepth": match depth {
+                    Some(d) => d,
+                    None => 1,
+                },
+                "as": "edges",
+                "restrictSearchWithMatch": bson::doc! {"label": label}
+            }},
+            bson::doc! {"$unwind": "$edges"},
+        ];
+
+        let mut cursor = self.collection_vertex().aggregate(pipeline, None).await?;
+
+        let mut res = Vec::new();
+        while let Some(doc) = cursor.next().await {
+            let edge: Edge = bson::from_document(doc?)?;
+            res.push(edge);
+        }
+
+        Ok(res)
+    }
+}
+
+#[cfg(test)]
+mod test_service {
+    use super::super::model::{EdgeDto, VertexDto};
+    use super::*;
+
+    const URI: &str = "mongodb://root:secret@localhost:27017";
+    const CAT: &str = "dev";
+
+    #[tokio::test]
+    async fn test_vertex_crud() {
+        let gs = GraphService::new(URI, CAT).await.unwrap();
+
+        let create = gs.create_vertex(VertexDto::new("node-1")).await.unwrap();
+        println!("{:?}", create);
+
+        let id = create.id.unwrap();
+        let get = gs.get_vertex(id).await.unwrap();
+        println!("{:?}", get);
+
+        assert_eq!(create, get);
+
+        let update = gs
+            .update_vertex(id, VertexDto::new("node-2"))
+            .await
+            .unwrap();
+        let get = gs.get_vertex(id).await.unwrap();
+
+        assert_eq!(update, get);
+
+        let delete = gs.delete_vertex(id).await;
+        assert!(delete.is_ok());
+    }
+
+    #[tokio::test]
+    async fn test_edge_crud() {
+        let gs = GraphService::new(URI, CAT).await.unwrap();
+
+        let node1 = gs.create_vertex(VertexDto::new("node-1")).await.unwrap();
+        let node2 = gs.create_vertex(VertexDto::new("node-2")).await.unwrap();
+        let node3 = gs.create_vertex(VertexDto::new("node-3")).await.unwrap();
+
+        // node1 -> node2
+        let _edge1 = gs
+            .create_edge(EdgeDto::new(
+                node1.id.unwrap(),
+                vec![node2.id.unwrap()],
+                Some(2.0),
+                Some("edge-1"),
+            ))
+            .await
+            .unwrap();
+
+        // node2 -> node3
+        let _edge2 = gs
+            .create_edge(EdgeDto::new(
+                node2.id.unwrap(),
+                vec![node3.id.unwrap()],
+                Some(3.0),
+                Some("edge-2"),
+            ))
+            .await
+            .unwrap();
+
+        // TODO:
+    }
 }

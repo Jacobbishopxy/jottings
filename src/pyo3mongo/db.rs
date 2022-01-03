@@ -1,15 +1,19 @@
 //! MongoDB
 
-use mongodb::{bson::oid::ObjectId, error::Error as MongoError, options::ClientOptions, Client};
+use mongodb::{error::Error as MongoError, options::ClientOptions, Client};
 
+#[allow(dead_code)]
 const DB_NAME: &str = "graph";
 
+#[allow(dead_code)]
 pub type MongoResult<T> = Result<T, MongoError>;
 
+#[allow(dead_code)]
 pub struct MongoClient {
     client: mongodb::Client,
 }
 
+#[allow(dead_code)]
 impl MongoClient {
     pub async fn new(uri: &str) -> MongoResult<MongoClient> {
         let mut co = ClientOptions::parse(uri).await?;
