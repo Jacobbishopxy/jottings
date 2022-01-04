@@ -16,19 +16,21 @@ use super::{Pyo3MongoError, Pyo3MongoResult};
 /// A graphService contains two collections:
 /// 1. ${cat}_vertex
 /// 1. ${cat}_edge
-#[allow(dead_code)]
 pub struct GraphService {
     client: MongoClient,
     cat: String,
 }
 
-#[allow(dead_code)]
 impl GraphService {
-    pub async fn new(uri: &str, cat: &str) -> Pyo3MongoResult<Self> {
+    pub async fn new(uri: &str, db: &str, cat: &str) -> Pyo3MongoResult<Self> {
         Ok(GraphService {
-            client: MongoClient::new(uri).await?,
+            client: MongoClient::new(uri, db).await?,
             cat: cat.to_owned(),
         })
+    }
+
+    pub async fn show_dbs(&self) -> Pyo3MongoResult<Vec<String>> {
+        Ok(self.client.show_dbs().await?)
     }
 
     /// collection of vertex
@@ -43,8 +45,8 @@ impl GraphService {
             .collection::<Edge>(&format!("{}_edge", self.cat))
     }
 
-    /// private method, truncate all collections
-    pub(crate) async fn truncate_all(&self) -> Pyo3MongoResult<()> {
+    /// truncate all collections
+    pub async fn truncate_all(&self) -> Pyo3MongoResult<()> {
         self.collection_vertex().delete_many(doc! {}, None).await?;
         self.collection_edge().delete_many(doc! {}, None).await?;
         Ok(())
@@ -399,13 +401,14 @@ mod test_service {
     use super::*;
 
     const URI: &str = "mongodb://root:secret@localhost:27017";
+    const DB: &str = "graph";
     const CAT: &str = "dev";
 
     const LABEL: &str = "test-label";
 
     #[tokio::test]
     async fn test_vertex_crud() {
-        let gs = GraphService::new(URI, CAT).await.unwrap();
+        let gs = GraphService::new(URI, DB, CAT).await.unwrap();
 
         let create = gs.create_vertex(VertexDto::new("node-1")).await.unwrap();
 
@@ -428,7 +431,7 @@ mod test_service {
 
     #[tokio::test]
     async fn test_truncate_all() {
-        let gs = GraphService::new(URI, CAT).await.unwrap();
+        let gs = GraphService::new(URI, DB, CAT).await.unwrap();
 
         let res = gs.truncate_all().await;
         assert!(res.is_ok());
@@ -436,7 +439,7 @@ mod test_service {
 
     #[tokio::test]
     async fn test_edge_circuit() {
-        let gs = GraphService::new(URI, CAT).await.unwrap();
+        let gs = GraphService::new(URI, DB, CAT).await.unwrap();
 
         let node1 = gs.create_vertex(VertexDto::new("node-1")).await.unwrap();
         let node2 = gs.create_vertex(VertexDto::new("node-2")).await.unwrap();
@@ -483,7 +486,7 @@ mod test_service {
 
     #[tokio::test]
     async fn test_edge_crud() {
-        let gs = GraphService::new(URI, CAT).await.unwrap();
+        let gs = GraphService::new(URI, DB, CAT).await.unwrap();
 
         let node1 = gs.create_vertex(VertexDto::new("node-1")).await.unwrap();
         let node2 = gs.create_vertex(VertexDto::new("node-2")).await.unwrap();

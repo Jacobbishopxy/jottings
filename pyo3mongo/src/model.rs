@@ -45,7 +45,7 @@ impl From<&Vertex> for Document {
 }
 
 /// DTO for `Edge`
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct EdgeDto<'a> {
     pub source: ObjectId,
     pub target: ObjectId,
@@ -53,7 +53,6 @@ pub struct EdgeDto<'a> {
     pub label: Option<&'a str>,
 }
 
-#[allow(dead_code)]
 impl<'a> EdgeDto<'a> {
     pub fn new(
         source: ObjectId,
@@ -83,12 +82,11 @@ impl<'a> From<EdgeDto<'a>> for Edge {
 }
 
 /// DTO for `Vertex`
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VertexDto<'a> {
     pub name: &'a str,
 }
 
-#[allow(dead_code)]
 impl<'a> VertexDto<'a> {
     pub fn new(name: &'a str) -> Self {
         VertexDto { name }
@@ -111,7 +109,6 @@ pub enum FindEdgeByVertexDto {
     Bidirectional(ObjectId),
 }
 
-#[allow(dead_code)]
 impl FindEdgeByVertexDto {
     pub fn id(&self) -> ObjectId {
         match self {

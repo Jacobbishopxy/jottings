@@ -4,12 +4,13 @@ pub mod db;
 pub mod model;
 pub mod service;
 
+pub use model::*;
+pub use service::GraphService;
+
 use thiserror::Error;
 
-#[allow(dead_code)]
 pub type Pyo3MongoResult<T> = Result<T, Pyo3MongoError>;
 
-#[allow(dead_code)]
 #[derive(Error, Debug)]
 pub enum Pyo3MongoError {
     #[error("common error {0}")]
@@ -20,4 +21,7 @@ pub enum Pyo3MongoError {
 
     #[error(transparent)]
     De(#[from] bson::de::Error),
+
+    #[error(transparent)]
+    Oid(#[from] bson::oid::Error),
 }
