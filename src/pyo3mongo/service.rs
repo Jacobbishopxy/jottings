@@ -3,6 +3,7 @@
 
 use mongodb::bson::oid::ObjectId;
 use mongodb::bson::{doc, Document};
+use mongodb::options::FindOptions;
 use mongodb::Collection;
 use tokio_stream::StreamExt;
 
@@ -223,7 +224,11 @@ impl GraphService {
         Ok(())
     }
 
-    fn edges_by_vertex_pipeline(&self, find_dto: FindEdgeByVertexDto) -> Vec<Document> {
+    /// get all related edges
+    pub async fn get_edges_by_vertex(
+        &self,
+        find_dto: FindEdgeByVertexDto,
+    ) -> Pyo3MongoResult<Vec<Edge>> {
         // match object id in vertex collection
         let match_id = |id: ObjectId| doc! {"$match": {"_id": id}};
         // from edge collection
@@ -241,7 +246,7 @@ impl GraphService {
         let unwind = doc! {"$unwind": "$edges"};
         let replace = doc! {"$replaceRoot": {"newRoot": "$edges"}};
 
-        match find_dto {
+        let pipeline = match find_dto {
             FindEdgeByVertexDto::Source(id) => {
                 vec![match_id(id), lookup("source"), unwind, replace]
             }
@@ -261,15 +266,7 @@ impl GraphService {
 
                 vec![match_id(id), advanced_lookup, unwind, replace]
             }
-        }
-    }
-
-    /// get all related edges
-    pub async fn get_edges_by_vertex(
-        &self,
-        find_dto: FindEdgeByVertexDto,
-    ) -> Pyo3MongoResult<Vec<Edge>> {
-        let pipeline = self.edges_by_vertex_pipeline(find_dto);
+        };
 
         // cursor, futures iterator
         let mut cursor = self.collection_vertex().aggregate(pipeline, None).await?;
@@ -287,19 +284,36 @@ impl GraphService {
     /// atomically delete all related edges and then delete vertex
     pub async fn delete_vertex(&self, id: ObjectId) -> Pyo3MongoResult<()> {
         // get all related edges
-        // TODO: do not use `edges_by_vertex_pipeline` here
-        let mut pipeline = self.edges_by_vertex_pipeline(FindEdgeByVertexDto::Bidirectional(id));
-        // project only _id
-        pipeline.push(doc! {"$project": doc! {"_id": 1}});
-        // look up all related edges' _id
-        let mut cursor = self.collection_vertex().aggregate(pipeline, None).await?;
-        let mut ids = Vec::new();
-        while let Some(doc) = cursor.next().await {
-            let pi: PureId = bson::from_document(doc?)?;
-            ids.push(pi.id);
-        }
+        let fo = FindOptions::builder()
+            .projection(doc! {"_id": 1i32})
+            .build();
 
-        dbg!(&ids);
+        let mut edges_sources = self
+            .client
+            .collection::<PureId>(&format!("{}_edge", self.cat))
+            .find(doc! {"source": id}, fo.clone())
+            .await?
+            .map(|v| match v {
+                Ok(v) => Ok(v.id),
+                Err(e) => Err(Pyo3MongoError::Mongo(e)),
+            })
+            .collect::<Pyo3MongoResult<Vec<_>>>()
+            .await?;
+
+        let mut edges_targets = self
+            .client
+            .collection::<PureId>(&format!("{}_edge", self.cat))
+            .find(doc! {"target": id}, fo)
+            .await?
+            .map(|v| match v {
+                Ok(v) => Ok(v.id),
+                Err(e) => Err(Pyo3MongoError::Mongo(e)),
+            })
+            .collect::<Pyo3MongoResult<Vec<_>>>()
+            .await?;
+
+        edges_sources.append(&mut edges_targets);
+        let ids = edges_sources;
 
         // delete all related edges
         if !ids.is_empty() {
@@ -394,12 +408,9 @@ mod test_service {
         let gs = GraphService::new(URI, CAT).await.unwrap();
 
         let create = gs.create_vertex(VertexDto::new("node-1")).await.unwrap();
-        println!("{:?}", create);
 
         let id = create.id.unwrap();
         let get = gs.get_vertex(id).await.unwrap();
-        println!("{:?}", get);
-
         assert_eq!(create, get);
 
         let update = gs
@@ -616,37 +627,36 @@ mod test_service {
         assert_eq!(edges.len(), 6);
         assert_eq!(vertexes.len(), 5);
 
-        // TODO: BUG
         // delete node2, related edges should be deleted: n8 -> n2, n1 -> n2, n2 -> n3
-        // let delete_n2 = gs.delete_vertex(node2.id.unwrap()).await;
-        // assert!(delete_n2.is_ok());
+        let delete_n2 = gs.delete_vertex(node2.id.unwrap()).await;
+        assert!(delete_n2.is_ok());
 
-        // // node1 graph
-        // let (edges, vertexes) = gs
-        //     .get_graph_from_vertex_by_label(node1.id.unwrap(), None, None)
-        //     .await
-        //     .unwrap();
-        // assert_eq!(edges.len(), 4);
-        // assert_eq!(vertexes.len(), 3);
+        // node1 graph
+        let (edges, vertexes) = gs
+            .get_graph_from_vertex_by_label(node1.id.unwrap(), None, None)
+            .await
+            .unwrap();
+        assert_eq!(edges.len(), 4);
+        assert_eq!(vertexes.len(), 3);
 
-        // // node8 graph
-        // let (edges, vertexes) = gs
-        //     .get_graph_from_vertex_by_label(node8.id.unwrap(), None, None)
-        //     .await
-        //     .unwrap();
-        // assert_eq!(edges.len(), 6);
-        // assert_eq!(vertexes.len(), 5);
+        // node8 graph
+        let (edges, vertexes) = gs
+            .get_graph_from_vertex_by_label(node8.id.unwrap(), None, None)
+            .await
+            .unwrap();
+        assert_eq!(edges.len(), 6);
+        assert_eq!(vertexes.len(), 5);
 
-        // // delete node1, related edges should be deleted: n7 -> n1, n1 -> n4, n1 -> n5
-        // let delete_n1 = gs.delete_vertex(node1.id.unwrap()).await;
-        // assert!(delete_n1.is_ok());
+        // delete node1, related edges should be deleted: n7 -> n1, n1 -> n4, n1 -> n5
+        let delete_n1 = gs.delete_vertex(node1.id.unwrap()).await;
+        assert!(delete_n1.is_ok());
 
-        // // node8 graph
-        // let (edges, vertexes) = gs
-        //     .get_graph_from_vertex_by_label(node8.id.unwrap(), None, None)
-        //     .await
-        //     .unwrap();
-        // assert_eq!(edges.len(), 1);
-        // assert_eq!(vertexes.len(), 1);
+        // node8 graph
+        let (edges, vertexes) = gs
+            .get_graph_from_vertex_by_label(node8.id.unwrap(), None, None)
+            .await
+            .unwrap();
+        assert_eq!(edges.len(), 1);
+        assert_eq!(vertexes.len(), 1);
     }
 }
