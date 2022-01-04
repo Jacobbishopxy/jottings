@@ -7,14 +7,19 @@
 use mongodb::bson::{self, oid::ObjectId, Document};
 use serde::{Deserialize, Serialize};
 
+#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+pub struct PureId {
+    #[serde(rename = "_id")]
+    pub id: ObjectId,
+}
+
 /// edge between two vertices
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Edge {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub cat: String,
     pub source: ObjectId,
-    pub targets: Vec<ObjectId>,
+    pub target: ObjectId,
     pub weight: Option<f64>,
     pub label: Option<String>,
 }
@@ -24,7 +29,6 @@ pub struct Edge {
 pub struct Vertex {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
-    pub cat: String,
     pub name: String,
 }
 
@@ -44,7 +48,7 @@ impl From<&Vertex> for Document {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct EdgeDto<'a> {
     pub source: ObjectId,
-    pub targets: Vec<ObjectId>,
+    pub target: ObjectId,
     pub weight: Option<f64>,
     pub label: Option<&'a str>,
 }
@@ -53,27 +57,27 @@ pub struct EdgeDto<'a> {
 impl<'a> EdgeDto<'a> {
     pub fn new(
         source: ObjectId,
-        targets: Vec<ObjectId>,
+        target: ObjectId,
         weight: Option<f64>,
         label: Option<&'a str>,
     ) -> Self {
         EdgeDto {
             source,
-            targets,
+            target,
             weight,
             label,
         }
     }
+}
 
-    // take ownership of the `EdgeDto` and create an `Edge`
-    pub fn to_edge(self, cat: &str) -> Edge {
+impl<'a> From<EdgeDto<'a>> for Edge {
+    fn from(source: EdgeDto<'a>) -> Self {
         Edge {
             id: None,
-            cat: cat.to_owned(),
-            source: self.source,
-            targets: self.targets,
-            weight: self.weight,
-            label: self.label.map(str::to_string),
+            source: source.source,
+            target: source.target,
+            weight: source.weight,
+            label: source.label.map(str::to_string),
         }
     }
 }
@@ -89,13 +93,13 @@ impl<'a> VertexDto<'a> {
     pub fn new(name: &'a str) -> Self {
         VertexDto { name }
     }
+}
 
-    // take ownership of the `VertexDto` and create an `Vertex`
-    pub fn to_vertex(self, cat: &str) -> Vertex {
+impl<'a> From<VertexDto<'a>> for Vertex {
+    fn from(source: VertexDto<'a>) -> Self {
         Vertex {
             id: None,
-            cat: cat.to_owned(),
-            name: self.name.to_owned(),
+            name: source.name.to_string(),
         }
     }
 }

@@ -1,8 +1,16 @@
 # Mongo Aggregation
 
-learning materials: [The MongoDB Aggregation Framework](https://university.mongodb.com/courses/M121/about)
+MongoDB graph database [key terms](https://www.mongodb.com/databases/mongodb-graph-database):
 
-## Note
+- Nodes (or vertices). You can think of nodes as the nouns in your databases; they store information about people, places, and things.
+
+- Edges (or relationships). You can think of edges as the verbs in your databases; they store information about the actions that are taken between the nodes.
+
+- Properties. A property is a key-value pair that stores information about a particular node or edge.
+
+- Labels. A label can optionally be used to tag a group of related nodes.
+
+Learning materials: [The MongoDB Aggregation Framework](https://university.mongodb.com/courses/M121/about)
 
 1. $match
 
