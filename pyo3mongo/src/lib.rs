@@ -1,12 +1,10 @@
-//! pyo3 mongo demo
-//!
-//! This is a demo of using pyo3 with mongodb.
-
-use thiserror::Error;
+//! Pyo3Mongo
 
 pub mod db;
 pub mod model;
 pub mod service;
+
+use thiserror::Error;
 
 #[allow(dead_code)]
 pub type Pyo3MongoResult<T> = Result<T, Pyo3MongoError>;

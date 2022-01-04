@@ -1,3 +1,4 @@
 {
-	"cSpell.words": ["conx", "tmap"]
+	"cSpell.words": ["conx", "tmap"],
+	"rust-analyzer.linkedProjects": ["jotting/Cargo.toml", "pyo3mongo/Cargo.toml"]
 }
