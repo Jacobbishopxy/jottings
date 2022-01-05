@@ -5,6 +5,7 @@
 //! 2. Create an `Edge` that connects `v1` and `v2`
 
 use mongodb::bson::{self, oid::ObjectId, Document};
+use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
@@ -14,6 +15,7 @@ pub struct PureId {
 }
 
 /// edge between two vertices
+#[pyclass]
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Edge {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
@@ -25,6 +27,7 @@ pub struct Edge {
 }
 
 /// vertex
+#[pyclass]
 #[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
 pub struct Vertex {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]

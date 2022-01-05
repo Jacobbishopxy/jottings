@@ -2,6 +2,7 @@
 
 pub mod db;
 pub mod model;
+pub mod package;
 pub mod service;
 
 pub use model::*;

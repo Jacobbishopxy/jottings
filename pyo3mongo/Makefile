@@ -3,11 +3,8 @@ ifneq (,$(wildcard .env))
     export
 endif
 
-pyenv:
-	conda activate py310
-
-pydep:
-	pip install maturin
+deps:
+	pip install -r requirements.txt
 
 dev:
 	maturin develop
@@ -15,8 +12,9 @@ dev:
 # run:
 # 	python pyo3.py
 
-create_vertex:
-	cargo run --bin create_vertex -- -u ${MONGO_URI} --name "node-1"
+# as an example, we need to specify the name by ourselves
+# create_vertex:
+# 	cargo run --bin create_vertex -- -u ${MONGO_URI} --name "node-1"
 
 # as an example, we do not know source & target ids in advance
 # create_edge:
