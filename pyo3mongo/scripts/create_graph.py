@@ -34,7 +34,6 @@ if __name__ == "__main__":
     vertex2 = py_graph.create_vertex("node2")
     print(vertex2.id)
 
-    # BUG: AttributeError: 'builtins.EdgeInput' object has no attribute 'source'
     edge_dto = p3m.EdgeInput(source=vertex1.id, target=vertex2.id, weight=1.0, label="edge1")
     edge = py_graph.create_edge(edge_dto)
     print(edge.id)

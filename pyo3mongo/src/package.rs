@@ -116,9 +116,13 @@ pub struct PyGraph {
 #[pyclass]
 #[derive(FromPyObject)]
 pub struct EdgeInput {
+    #[pyo3(get, set)]
     pub source: String,
+    #[pyo3(get, set)]
     pub target: String,
+    #[pyo3(get, set)]
     pub weight: Option<f64>,
+    #[pyo3(get, set)]
     pub label: Option<String>,
 }
 
