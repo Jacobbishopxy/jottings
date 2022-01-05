@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use bson::oid::ObjectId;
 use clap::Parser;
-use pyo3mongo::{EdgeDto, GraphService, Pyo3MongoResult};
+use p3m::{EdgeDto, GraphService, Pyo3MongoResult};
 
 #[derive(Parser, Debug)]
 #[clap(about, version, author)]

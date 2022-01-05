@@ -4,6 +4,10 @@ authors = ["JacobX <jacobbishopxy@gmail.com>"]
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "p3m"
+crate-type = ["rlib", "cdylib"]
+
 [dependencies]
 bson = "2"
 clap = { version = "3", features = ["derive"] }

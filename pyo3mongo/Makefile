@@ -6,7 +6,7 @@ endif
 deps:
 	pip install -r requirements.txt
 
-dev:
+build:
 	maturin develop
 
 # run:

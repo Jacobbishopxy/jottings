@@ -1,5 +1,5 @@
 use clap::Parser;
-use pyo3mongo::{GraphService, Pyo3MongoResult};
+use p3m::{GraphService, Pyo3MongoResult};
 
 #[derive(Parser, Debug)]
 #[clap(about, version, author)]
