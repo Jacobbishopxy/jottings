@@ -153,6 +153,14 @@ impl<'a> TryFrom<&'a EdgeInput> for EdgeDto<'a> {
     }
 }
 
+#[pyclass]
+pub struct GraphOutput {
+    #[pyo3(get)]
+    pub vertexes: Vec<Vertex>,
+    #[pyo3(get)]
+    pub edges: Vec<Edge>,
+}
+
 #[pymethods]
 impl PyGraph {
     #[new]
@@ -170,6 +178,7 @@ impl PyGraph {
             .runtime
             .block_on(async { self.service.create_vertex(dto).await })?;
 
+        // Global Interpreter Lock
         let gil = Python::acquire_gil();
         let py = gil.python();
         Py::new(py, res)
@@ -185,6 +194,26 @@ impl PyGraph {
         let py = gil.python();
         Py::new(py, res)
     }
+
+    pub fn get_graph(
+        &self,
+        vertex_id: &str,
+        label: Option<&str>,
+        depth: Option<i32>,
+    ) -> PyResult<Py<GraphOutput>> {
+        let (edges, vertexes) = self.runtime.block_on(async {
+            let oid = ObjectId::from_str(vertex_id)?;
+            self.service
+                .get_graph_from_vertex_by_label(oid, label, depth)
+                .await
+        })?;
+
+        let res = GraphOutput { vertexes, edges };
+
+        let gil = Python::acquire_gil();
+        let py = gil.python();
+        Py::new(py, res)
+    }
 }
 
 #[pymodule]
@@ -192,6 +221,7 @@ fn p3m(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_class::<Vertex>()?;
     m.add_class::<Edge>()?;
     m.add_class::<EdgeInput>()?;
+    m.add_class::<GraphOutput>()?;
     m.add_class::<PyGraph>()?;
     Ok(())
 }

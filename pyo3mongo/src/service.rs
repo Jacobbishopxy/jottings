@@ -45,7 +45,7 @@ impl GraphService {
             .collection::<Edge>(&format!("{}_edge", self.cat))
     }
 
-    /// truncate all collections
+    /// truncate all collections, careful to use
     pub async fn truncate_all(&self) -> Pyo3MongoResult<()> {
         self.collection_vertex().delete_many(doc! {}, None).await?;
         self.collection_edge().delete_many(doc! {}, None).await?;
@@ -246,8 +246,10 @@ impl GraphService {
         };
         // turn aggregations into a vector of edges document
         let unwind = doc! {"$unwind": "$edges"};
+        // replaceRoot, discard unnecessary parent fields, and keep a child value only
         let replace = doc! {"$replaceRoot": {"newRoot": "$edges"}};
 
+        // a pipeline can been seen as a workflow
         let pipeline = match find_dto {
             FindEdgeByVertexDto::Source(id) => {
                 vec![match_id(id), lookup("source"), unwind, replace]
@@ -256,6 +258,9 @@ impl GraphService {
                 vec![match_id(id), lookup("target"), unwind, replace]
             }
             FindEdgeByVertexDto::Bidirectional(id) => {
+                // lookup both source and target direction's edges
+                // instead of using `localField` & `foreignField` combination, we need a
+                // `pipeline` here to express an advanced matching case -- $or
                 let advanced_lookup = doc! {
                     "$lookup": {
                         "from": &from,
@@ -270,7 +275,7 @@ impl GraphService {
             }
         };
 
-        // cursor, futures iterator
+        // cursor, streams the result of a query, can be seen as a future's iterator
         let mut cursor = self.collection_vertex().aggregate(pipeline, None).await?;
 
         let mut res = Vec::new();
@@ -285,11 +290,25 @@ impl GraphService {
     /// delete vertex
     /// atomically delete all related edges and then delete vertex
     pub async fn delete_vertex(&self, id: ObjectId) -> Pyo3MongoResult<()> {
-        // get all related edges
+        // exit if vertex not found
+        if let None = self
+            .collection_vertex()
+            .find_one(doc! {"_id": id}, None)
+            .await?
+        {
+            return Err(Pyo3MongoError::Common("edge not found"));
+        }
+
+        // get all related edges' id, so we need a projection here
         let fo = FindOptions::builder()
             .projection(doc! {"_id": 1i32})
             .build();
 
+        // edges who link to all the sources.
+        // cursor, which is the same as the cursor in `get_edges_by_vertex`.
+        // instead of using `while-let` to tackle streaming result, we can use `.map`
+        // method provided by `tokio_stream::StreamExt` (or `futures::StreamExt`,
+        // depends on your dependencies) and `collect` the transformed data at once.
         let mut edges_sources = self
             .client
             .collection::<PureId>(&format!("{}_edge", self.cat))
@@ -302,6 +321,7 @@ impl GraphService {
             .collect::<Pyo3MongoResult<Vec<_>>>()
             .await?;
 
+        // edges who link to all the targets.
         let mut edges_targets = self
             .client
             .collection::<PureId>(&format!("{}_edge", self.cat))
@@ -314,41 +334,43 @@ impl GraphService {
             .collect::<Pyo3MongoResult<Vec<_>>>()
             .await?;
 
+        // now combine these two type of edges
         edges_sources.append(&mut edges_targets);
         let ids = edges_sources;
 
-        // delete all related edges
+        // delete all related edges, if it is not empty
         if !ids.is_empty() {
             self.delete_edges(ids).await?;
         }
 
         // delete vertex
-        let delete_vertex = self
-            .collection_vertex()
+        self.collection_vertex()
             .delete_one(doc! {"_id": id}, None)
             .await?;
-
-        if delete_vertex.deleted_count == 0 {
-            return Err(Pyo3MongoError::Common("edge not found"));
-        }
 
         Ok(())
     }
 
+    // get graph-like edges, filter by label
+    // graph-lookup, a powerful query method provided by mongo, used to recursively
+    // find out related graph patter, see README.md for more details
     pub async fn get_edges_from_vertex_by_label(
         &self,
         vertex_id: ObjectId,
         label: Option<&str>,
         depth: Option<i32>,
     ) -> Pyo3MongoResult<Vec<Edge>> {
+        // optional field
         let depth = match depth {
             Some(n) => doc! {"maxDepth": n},
             None => doc! {},
         };
+        // optional field
         let restrict = match label {
             Some(l) => doc! {"restrictSearchWithMatch": {"label": l}},
             None => doc! {},
         };
+        // CORE FEATURE
         let mut graph_lookup = doc! {
             "from": format!("{}_edge", self.cat),
             "startWith": "$_id",
@@ -359,6 +381,7 @@ impl GraphService {
         graph_lookup.extend(depth);
         graph_lookup.extend(restrict);
 
+        // a pipeline similar to `$lookup` as shown above
         let pipeline = vec![
             doc! {"$match": doc! {"_id": vertex_id}},
             doc! {"$graphLookup": graph_lookup},
@@ -377,6 +400,7 @@ impl GraphService {
         Ok(res)
     }
 
+    // get both edges and vertex, filter by label
     pub async fn get_graph_from_vertex_by_label(
         &self,
         vertex_id: ObjectId,

@@ -1,5 +1,9 @@
 //! model
 //!
+//! Graph model is quite simple to understand:
+//! We need Vertex (or Node) to store information and Edge to represent
+//! relationships among Vertex.
+//!
 //! Creation of a graph:
 //! 1. Create two `Vertex`s `v1` and `v2`
 //! 2. Create an `Edge` that connects `v1` and `v2`
@@ -35,12 +39,14 @@ pub struct Vertex {
     pub name: String,
 }
 
+// required by Mongo query
 impl From<&Edge> for Document {
     fn from(source: &Edge) -> Self {
         bson::to_document(source).unwrap()
     }
 }
 
+// required by Mongo query
 impl From<&Vertex> for Document {
     fn from(source: &Vertex) -> Self {
         bson::to_document(source).unwrap()
@@ -105,6 +111,7 @@ impl<'a> From<VertexDto<'a>> for Vertex {
     }
 }
 
+// used for mongo query lookup's orientation
 #[derive(Serialize, Deserialize, Debug)]
 pub enum FindEdgeByVertexDto {
     Source(ObjectId),
