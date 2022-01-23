@@ -2,7 +2,8 @@
 	"cSpell.words": ["conx", "thiserror", "tmap"],
 	"rust-analyzer.linkedProjects": [
 		"jotting/Cargo.toml",
-		"pyo3mongo/Cargo.toml"
+		"pyo3mongo/Cargo.toml",
+		"algo/Cargo.toml"
 	],
 	"python.formatting.provider": "black"
 }
