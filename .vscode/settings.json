@@ -3,7 +3,8 @@
 	"rust-analyzer.linkedProjects": [
 		"jotting/Cargo.toml",
 		"pyo3mongo/Cargo.toml",
-		"algo/Cargo.toml"
+		"algo/Cargo.toml",
+		"proc-macro-workshop/Cargo.toml"
 	],
 	"python.formatting.provider": "black"
 }
