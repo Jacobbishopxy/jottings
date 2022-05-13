@@ -16,7 +16,7 @@ use nom::IResult;
 enum ParsingError {
     InvalidDbType(String),
     InvalidDataType(String, String),
-    ParsingError(String),
+    Parsing(String),
 }
 
 // database type
@@ -134,8 +134,8 @@ fn test_get_tmap() {
 // parse database and data type
 #[allow(dead_code)]
 fn get_types(input: &str) -> IResult<&str, (&str, &str)> {
-    let sql_type = |s| alpha1(s);
-    let data_type = |s| alpha1(s);
+    let sql_type = alpha1;
+    let data_type = alpha1;
 
     let ctn = separated_pair(sql_type, tag(":"), data_type);
     let mut par = delimited(tag("["), ctn, tag("]"));
@@ -159,7 +159,7 @@ fn test_get_types() {
 
 #[allow(dead_code)]
 fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
-    let sql_type = |s| alpha1(s);
+    let sql_type = alpha1;
     let data_type = |s| recognize(separated_pair(alpha1, space0, alpha0))(s);
 
     let ctn = separated_pair(sql_type, tag(":"), data_type);
@@ -170,9 +170,9 @@ fn get_types2(input: &str) -> IResult<&str, (&str, &str)> {
 
 #[allow(dead_code)]
 fn get_types3(input: &str) -> IResult<&str, (&str, &str)> {
-    let sql_type = |s| alpha1(s);
+    let sql_type = alpha1;
     let data_type_1 = |s| recognize(separated_pair(alpha1, space1, alpha1))(s);
-    let data_type_2 = |s| alpha1(s);
+    let data_type_2 = alpha1;
     let data_type = |s| alt((data_type_1, data_type_2))(s);
 
     let ctn = separated_pair(sql_type, tag(":"), data_type);
@@ -212,7 +212,7 @@ fn test_get_types2() {
 
 #[allow(dead_code)]
 fn get_types4(input: &str) -> IResult<&str, (&str, &str)> {
-    let sql_type = |s| alpha1(s);
+    let sql_type = alpha1;
     let data_type = |s| take_until("]")(s);
 
     let ctn = separated_pair(sql_type, tag(":"), data_type);
@@ -240,12 +240,12 @@ fn test_get_types4() {
 }
 
 fn get_types5(input: &str) -> IResult<&str, (&str, &str)> {
-    let sql_type = |s| alpha1(s);
+    let sql_type = alpha1;
     let data_type_1 = |s| recognize(separated_pair(alpha1, space1, alpha1))(s);
     let tpl = |s| tuple((tag("("), alphanumeric1, tag(")")))(s);
     let pr = |s| pair(alpha1, tpl)(s);
     let data_type_2 = |s| recognize(pr)(s);
-    let data_type_3 = |s| alphanumeric1(s);
+    let data_type_3 = alphanumeric1;
     let data_type = |s| alt((data_type_1, data_type_2, data_type_3))(s);
 
     let ctn = separated_pair(sql_type, tag(":"), data_type);
@@ -289,30 +289,15 @@ fn from_str_to_type(input: &str) -> Result<(DbType, ValueType), ParsingError> {
         Ok((_, (db_type, data_type))) => match db_type.parse::<DbType>() {
             Ok(dt) => {
                 let rvt = match dt {
-                    DbType::Mysql => {
-                        MYSQL_TMAP
-                            .get(data_type)
-                            .ok_or(ParsingError::InvalidDataType(
-                                "MYSQL".to_string(),
-                                data_type.to_string(),
-                            ))
-                    }
-                    DbType::Postgres => {
-                        POSTGRES_TMAP
-                            .get(data_type)
-                            .ok_or(ParsingError::InvalidDataType(
-                                "POSTGRES".to_string(),
-                                data_type.to_string(),
-                            ))
-                    }
-                    DbType::Sqlite => {
-                        SQLITE_TMAP
-                            .get(data_type)
-                            .ok_or(ParsingError::InvalidDataType(
-                                "SQLITE".to_string(),
-                                data_type.to_string(),
-                            ))
-                    }
+                    DbType::Mysql => MYSQL_TMAP.get(data_type).ok_or_else(|| {
+                        ParsingError::InvalidDataType("MYSQL".to_string(), data_type.to_string())
+                    }),
+                    DbType::Postgres => POSTGRES_TMAP.get(data_type).ok_or_else(|| {
+                        ParsingError::InvalidDataType("POSTGRES".to_string(), data_type.to_string())
+                    }),
+                    DbType::Sqlite => SQLITE_TMAP.get(data_type).ok_or_else(|| {
+                        ParsingError::InvalidDataType("SQLITE".to_string(), data_type.to_string())
+                    }),
                 };
 
                 match rvt {
@@ -325,7 +310,7 @@ fn from_str_to_type(input: &str) -> Result<(DbType, ValueType), ParsingError> {
             }
             Err(_) => Err(ParsingError::InvalidDbType(db_type.to_string())),
         },
-        _ => Err(ParsingError::ParsingError(input.to_string())),
+        _ => Err(ParsingError::Parsing(input.to_string())),
     }
 }
 

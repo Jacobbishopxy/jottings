@@ -65,7 +65,7 @@ impl GraphService {
             .await?
             .ok_or(Pyo3MongoError::Common("vertex not found"));
 
-        Ok(res?)
+        res
     }
 
     pub async fn get_vertex(&self, id: ObjectId) -> Pyo3MongoResult<Vertex> {
@@ -75,7 +75,7 @@ impl GraphService {
             .await?
             .ok_or(Pyo3MongoError::Common("vertex not found"));
 
-        Ok(res?)
+        res
     }
 
     pub async fn get_vertexes(&self, ids: Vec<ObjectId>) -> Pyo3MongoResult<Vec<Vertex>> {
@@ -116,7 +116,7 @@ impl GraphService {
             .await?
             .ok_or(Pyo3MongoError::Common("vertex not found"));
 
-        Ok(res?)
+        res
     }
 
     /// look up source & target vertexes whether existed
@@ -146,7 +146,7 @@ impl GraphService {
             .await?
             .ok_or(Pyo3MongoError::Common("edge not found"));
 
-        Ok(res?)
+        res
     }
 
     pub async fn get_edge(&self, id: ObjectId) -> Pyo3MongoResult<Edge> {
@@ -156,7 +156,7 @@ impl GraphService {
             .await?
             .ok_or(Pyo3MongoError::Common("edge not fount"));
 
-        Ok(res?)
+        res
     }
 
     pub async fn get_edges(&self, ids: Vec<ObjectId>) -> Pyo3MongoResult<Vec<Edge>> {
@@ -197,7 +197,7 @@ impl GraphService {
             .await?
             .ok_or(Pyo3MongoError::Common("edge not found"));
 
-        Ok(res?)
+        res
     }
 
     pub async fn delete_edge(&self, id: ObjectId) -> Pyo3MongoResult<()> {
@@ -291,10 +291,11 @@ impl GraphService {
     /// atomically delete all related edges and then delete vertex
     pub async fn delete_vertex(&self, id: ObjectId) -> Pyo3MongoResult<()> {
         // exit if vertex not found
-        if let None = self
+        if (self
             .collection_vertex()
             .find_one(doc! {"_id": id}, None)
-            .await?
+            .await?)
+            .is_none()
         {
             return Err(Pyo3MongoError::Common("edge not found"));
         }

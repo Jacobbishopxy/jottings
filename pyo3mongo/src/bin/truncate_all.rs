@@ -20,5 +20,5 @@ async fn main() -> Pyo3MongoResult<()> {
 
     let gs = GraphService::new(&args.uri, &args.database, &args.category).await?;
 
-    Ok(gs.truncate_all().await?)
+    gs.truncate_all().await
 }

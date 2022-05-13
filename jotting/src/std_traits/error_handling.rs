@@ -68,7 +68,7 @@ fn get_cluster_info_pro(path: &str) -> Result<ClusterMap> {
 
 #[test]
 fn test_get_cluster_info_pro() {
-    let _ = match get_cluster_info_pro("./mock/cluster_map.json") {
+    match get_cluster_info_pro("./mock/cluster_map.json") {
         Ok(cm) => println!("{:?}", cm),
         Err(e) => println!("{:?}", e),
     };

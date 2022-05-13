@@ -2,9 +2,9 @@
 
 // use itertools::Itertools;
 use polars::prelude::{
-    AnyValue, BooleanChunked, DataType, Float32Chunked, Float64Chunked, Int16Chunked, Int32Chunked,
-    Int64Chunked, Int8Chunked, Series, TakeRandom, UInt16Chunked, UInt32Chunked, UInt64Chunked,
-    UInt8Chunked, Utf8Chunked,
+    AnyValue, BooleanChunked, ChunkLen, DataType, Float32Chunked, Float64Chunked, Int16Chunked,
+    Int32Chunked, Int64Chunked, Int8Chunked, Series, TakeRandom, UInt16Chunked, UInt32Chunked,
+    UInt64Chunked, UInt8Chunked, Utf8Chunked,
 };
 
 #[allow(dead_code)]
