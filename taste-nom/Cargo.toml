@@ -1,0 +1,9 @@
+[package]
+name = "taste-nom"
+authors = ["JacobX <jacobbishopxy@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+nom = "7"
+lazy_static = "1"
