@@ -241,12 +241,12 @@ fn test_get_types4() {
 
 fn get_types5(input: &str) -> IResult<&str, (&str, &str)> {
     let sql_type = alpha1;
-    let data_type_1 = |s| recognize(separated_pair(alpha1, space1, alpha1))(s);
+    let data_type_1 = recognize(separated_pair(alpha1, space1, alpha1));
     let tpl = |s| tuple((tag("("), alphanumeric1, tag(")")))(s);
     let pr = |s| pair(alpha1, tpl)(s);
     let data_type_2 = |s| recognize(pr)(s);
     let data_type_3 = alphanumeric1;
-    let data_type = |s| alt((data_type_1, data_type_2, data_type_3))(s);
+    let data_type = alt((data_type_1, data_type_2, data_type_3));
 
     let ctn = separated_pair(sql_type, tag(":"), data_type);
     let mut par = delimited(tag("["), ctn, tag("]"));
