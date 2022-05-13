@@ -37,6 +37,10 @@ fn test_get_cluster_info() {
 
 /*
 2. thiserror::Error
+
+Note: `anyhow::Error` is the superset of `ClusterMapError`. In other words,
+the type conversion from any type who has implemented `thiserror::Error` to
+`anyhow::Error` is given.
 */
 
 #[allow(dead_code)]

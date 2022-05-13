@@ -5,7 +5,9 @@
 		"polars-loader/Cargo.toml",
 		"std-traits/Cargo.toml",
 		"error-handling/Cargo.toml",
-		"taste-nom/Cargo.toml"
+		"taste-nom/Cargo.toml",
+		"algo/Cargo.toml",
+		"proc-macro-workshop/Cargo.toml"
 	],
 	"python.formatting.provider": "black"
 }
