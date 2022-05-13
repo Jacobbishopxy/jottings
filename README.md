@@ -9,3 +9,5 @@
 - [Std traits](/std-traits/README.md)
 
 - [Taste Nom](/taste-nom/README.md)
+
+- [Algo](/algo/README.md)
