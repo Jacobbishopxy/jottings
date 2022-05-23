@@ -12,7 +12,7 @@ use mongodb::bson::{self, oid::ObjectId, Document};
 use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct PureId {
     #[serde(rename = "_id")]
     pub id: ObjectId,
@@ -32,7 +32,7 @@ pub struct Edge {
 
 /// vertex
 #[pyclass]
-#[derive(Serialize, Deserialize, PartialEq, Clone, Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Clone, Debug)]
 pub struct Vertex {
     #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
     pub id: Option<ObjectId>,
