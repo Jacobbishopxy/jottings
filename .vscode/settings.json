@@ -6,7 +6,8 @@
 		"std-traits/Cargo.toml",
 		"error-handling/Cargo.toml",
 		"taste-nom/Cargo.toml",
-		"algo/Cargo.toml"
+		"algo/Cargo.toml",
+		"hrtb/Cargo.toml"
 	],
 	"python.formatting.provider": "black"
 }
