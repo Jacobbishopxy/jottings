@@ -1,11 +1,6 @@
 //! A jotting lib used for testing polars crate and etc.
 
-// use itertools::Itertools;
-use polars::prelude::{
-    AnyValue, BooleanChunked, ChunkLen, DataType, Float32Chunked, Float64Chunked, Int16Chunked,
-    Int32Chunked, Int64Chunked, Int8Chunked, Series, TakeRandom, UInt16Chunked, UInt32Chunked,
-    UInt64Chunked, UInt8Chunked, Utf8Chunked,
-};
+use polars::prelude::*;
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -135,5 +130,23 @@ mod test_core {
         for i in s.into_iter() {
             println!("{:?}", i);
         }
+    }
+
+    #[test]
+    fn test_lazy() {
+        let df = df! {
+            "column_a" => &[1, 2, 3, 4, 5],
+            "column_b" => &["a", "b", "c", "d", "e"],
+        }
+        .unwrap();
+
+        let new = df
+            .lazy()
+            .reverse()
+            .with_column((col("column_a") * lit(10)).alias("new_column"))
+            .collect()
+            .unwrap();
+
+        println!("{:?}", new);
     }
 }
