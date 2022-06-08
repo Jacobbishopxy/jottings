@@ -164,16 +164,16 @@ pub struct GraphOutput {
 #[pymethods]
 impl PyGraph {
     #[new]
-    fn new_graph(uri: &str, database: &str, category: &str) -> PyResult<PyGraph> {
+    fn new_graph(uri: String, database: String, category: String) -> PyResult<PyGraph> {
         let runtime = tokio::runtime::Runtime::new().unwrap();
         let service =
-            runtime.block_on(async move { GraphService::new(uri, database, category).await })?;
+            runtime.block_on(async move { GraphService::new(&uri, &database, &category).await })?;
 
         Ok(PyGraph { service, runtime })
     }
 
-    pub fn create_vertex(&self, v: &str) -> PyResult<Py<Vertex>> {
-        let dto = VertexDto::new(v);
+    pub fn create_vertex(&self, v: String) -> PyResult<Py<Vertex>> {
+        let dto = VertexDto::new(&v);
         let res = self
             .runtime
             .block_on(async { self.service.create_vertex(dto).await })?;
@@ -197,12 +197,12 @@ impl PyGraph {
 
     pub fn get_graph(
         &self,
-        vertex_id: &str,
+        vertex_id: String,
         label: Option<&str>,
         depth: Option<i32>,
     ) -> PyResult<Py<GraphOutput>> {
         let (edges, vertexes) = self.runtime.block_on(async {
-            let oid = ObjectId::from_str(vertex_id)?;
+            let oid = ObjectId::from_str(&vertex_id)?;
             self.service
                 .get_graph_from_vertex_by_label(oid, label, depth)
                 .await

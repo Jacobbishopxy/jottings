@@ -59,23 +59,17 @@ impl GraphService {
             .await?;
 
         let id = insert.inserted_id.as_object_id().unwrap();
-        let res = self
-            .collection_vertex()
+        self.collection_vertex()
             .find_one(doc! {"_id": id}, None)
             .await?
-            .ok_or(Pyo3MongoError::Common("vertex not found"));
-
-        res
+            .ok_or(Pyo3MongoError::Common("vertex not found"))
     }
 
     pub async fn get_vertex(&self, id: ObjectId) -> Pyo3MongoResult<Vertex> {
-        let res = self
-            .collection_vertex()
+        self.collection_vertex()
             .find_one(doc! {"_id": id}, None)
             .await?
-            .ok_or(Pyo3MongoError::Common("vertex not found"));
-
-        res
+            .ok_or(Pyo3MongoError::Common("vertex not found"))
     }
 
     pub async fn get_vertexes(&self, ids: Vec<ObjectId>) -> Pyo3MongoResult<Vec<Vertex>> {
@@ -110,13 +104,11 @@ impl GraphService {
         let update = doc! {
             "$set": Document::from(&Vertex::from(dto))
         };
-        let res = self
-            .collection_vertex()
+
+        self.collection_vertex()
             .find_one_and_update(id, update, None)
             .await?
-            .ok_or(Pyo3MongoError::Common("vertex not found"));
-
-        res
+            .ok_or(Pyo3MongoError::Common("vertex not found"))
     }
 
     /// look up source & target vertexes whether existed
@@ -140,23 +132,17 @@ impl GraphService {
             .insert_one(Edge::from(dto), None)
             .await?;
 
-        let res = self
-            .collection_edge()
+        self.collection_edge()
             .find_one(doc! {"_id": insert.inserted_id}, None)
             .await?
-            .ok_or(Pyo3MongoError::Common("edge not found"));
-
-        res
+            .ok_or(Pyo3MongoError::Common("edge not found"))
     }
 
     pub async fn get_edge(&self, id: ObjectId) -> Pyo3MongoResult<Edge> {
-        let res = self
-            .collection_edge()
+        self.collection_edge()
             .find_one(doc! {"_id": id}, None)
             .await?
-            .ok_or(Pyo3MongoError::Common("edge not fount"));
-
-        res
+            .ok_or(Pyo3MongoError::Common("edge not fount"))
     }
 
     pub async fn get_edges(&self, ids: Vec<ObjectId>) -> Pyo3MongoResult<Vec<Edge>> {
@@ -191,13 +177,11 @@ impl GraphService {
         let update = doc! {
             "$set": Document::from(&Edge::from(dto))
         };
-        let res = self
-            .collection_edge()
+
+        self.collection_edge()
             .find_one_and_update(id, update, None)
             .await?
-            .ok_or(Pyo3MongoError::Common("edge not found"));
-
-        res
+            .ok_or(Pyo3MongoError::Common("edge not found"))
     }
 
     pub async fn delete_edge(&self, id: ObjectId) -> Pyo3MongoResult<()> {
