@@ -27,7 +27,6 @@ where
     }
 }
 
-#[allow(dead_code)]
 #[derive(Debug)]
 enum Data {
     A(u32),
@@ -41,10 +40,21 @@ fn add_one(data: &mut Data) {
     }
 }
 
+fn minus_one(data: &mut Data) {
+    match data {
+        Data::A(x) => *x -= 1,
+        Data::B(x) => *x -= 1,
+    }
+}
+
 fn main() {
     let mut x = Processor::new(Data::A(1), add_one);
-
     x.process();
 
     println!("{:?}", x.data());
+
+    let mut y = Processor::new(Data::B(1), minus_one);
+    y.process();
+
+    println!("{:?}", y.data());
 }
