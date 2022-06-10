@@ -44,7 +44,7 @@ async fn fake_process(i: i32) -> String {
 }
 
 #[tokio::test]
-async fn async_processor_success() {
+async fn async_processor_success1() {
     let fp = |i| async move { fake_process(i).await };
 
     let mut processor = AProcessor::new(fp);
@@ -53,4 +53,43 @@ async fn async_processor_success() {
 
     println!("res: {:?}", res);
     println!("called: {:?}", processor.called);
+}
+
+#[allow(dead_code)]
+pub struct AProcessor2 {
+    called: usize,
+}
+
+impl AProcessor2 {
+    #[allow(dead_code)]
+    pub fn new() -> Self {
+        AProcessor2 { called: 0 }
+    }
+
+    #[allow(dead_code)]
+    pub async fn process<'a, F, Fut, O>(&'a mut self, f: F) -> O
+    where
+        F: Fn(&'a mut Self) -> Fut,
+        Fut: Future<Output = O>,
+    {
+        self.called += 1;
+        f(self).await
+    }
+
+    #[allow(dead_code)]
+    pub async fn add(&mut self, a: usize) -> usize {
+        self.called += a;
+        self.called
+    }
+}
+
+#[tokio::test]
+async fn async_processor_success2() {
+    let mut p2 = AProcessor2::new();
+
+    let num = 2;
+
+    let res = p2.process(|s| async { s.add(num).await }).await;
+
+    println!("{:?}", res);
 }
