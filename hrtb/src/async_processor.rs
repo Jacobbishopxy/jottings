@@ -73,7 +73,9 @@ impl AProcessor2 {
         Fut: Future<Output = O>,
     {
         self.called += 1;
-        f(self).await
+        let p = self as *mut Self;
+        f(unsafe { &mut *p }).await;
+        f(unsafe { &mut *p }).await
     }
 
     #[allow(dead_code)]
