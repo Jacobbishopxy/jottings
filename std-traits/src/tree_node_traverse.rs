@@ -26,6 +26,10 @@ impl TreeNode {
     pub fn iter_left_right_level_order(self) -> IntoIteratorLR {
         TreeNodeByLeftRightLevelOrder(self).into_iter()
     }
+
+    pub fn iter_zigzag_level_order(self) -> IntoIteratorZZ {
+        TreeNodeByZigZagLevelOrder(self).into_iter()
+    }
 }
 
 #[macro_export]
@@ -97,7 +101,6 @@ pub struct TreeNodeByLeftRightLevelOrder(TreeNode);
 
 pub struct IntoIteratorLR {
     que: VecDeque<Rc<RefCell<TreeNode>>>,
-    stp: usize,
 }
 
 impl Iterator for IntoIteratorLR {
@@ -107,12 +110,6 @@ impl Iterator for IntoIteratorLR {
         if self.que.is_empty() {
             None
         } else {
-            self.stp += 1;
-
-            if self.stp > self.que.len() {
-                self.stp = 0;
-            }
-
             let node = self.que.pop_front().unwrap();
             if node.borrow().left.is_some() {
                 self.que.push_back(node.borrow().left.clone().unwrap());
@@ -134,7 +131,7 @@ impl IntoIterator for TreeNodeByLeftRightLevelOrder {
         let mut que = VecDeque::new();
         que.push_back(Rc::new(RefCell::new(self.0)));
 
-        IntoIteratorLR { que, stp: 0 }
+        IntoIteratorLR { que }
     }
 }
 
@@ -192,8 +189,8 @@ fn zigzag_level_order1(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<Vec<i32>> {
                 res[depth].insert(0, rt.borrow().val);
             }
 
-            zigzag_level_order_traverse(rt.borrow().left.clone(), depth + 1, res);
             zigzag_level_order_traverse(rt.borrow().right.clone(), depth + 1, res);
+            zigzag_level_order_traverse(rt.borrow().left.clone(), depth + 1, res);
         }
     }
 
@@ -225,11 +222,11 @@ fn zigzag_level_order2(root: Option<Rc<RefCell<TreeNode>>>) -> Vec<Vec<i32>> {
             } else {
                 level.push_front(node.borrow().val)
             }
-            if node.borrow().left.is_some() {
-                que.push_back(node.borrow().left.clone().unwrap());
-            }
             if node.borrow().right.is_some() {
                 que.push_back(node.borrow().right.clone().unwrap());
+            }
+            if node.borrow().left.is_some() {
+                que.push_back(node.borrow().left.clone().unwrap());
             }
         }
         res.push(Vec::from(level));
@@ -243,23 +240,64 @@ pub struct TreeNodeByZigZagLevelOrder(TreeNode);
 
 pub struct IntoIteratorZZ {
     que: VecDeque<Rc<RefCell<TreeNode>>>,
+    is_order_left: bool,
+    len: usize,
     stp: usize,
+    flg: bool,
 }
 
 impl Iterator for IntoIteratorZZ {
     type Item = i32;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // dbg!(&self.que);
         if self.que.is_empty() {
             None
         } else {
             self.stp += 1;
 
-            if self.stp > self.que.len() {
+            if self.stp > self.len {
+                self.is_order_left = !self.is_order_left;
                 self.stp = 0;
+                self.flg = true;
             }
 
-            todo!()
+            let node;
+
+            if self.is_order_left {
+                node = self.que.pop_front().unwrap();
+
+                if let Some(n) = &node.borrow().left {
+                    self.que.push_back(n.clone());
+                    if self.flg {
+                        self.len += 1;
+                    }
+                }
+                if let Some(n) = &node.borrow().right {
+                    self.que.push_back(n.clone());
+                    if self.flg {
+                        self.len += 1;
+                    }
+                }
+            } else {
+                node = self.que.pop_back().unwrap();
+
+                if let Some(n) = &node.borrow().left {
+                    self.que.push_front(n.clone());
+                    if self.flg {
+                        self.len += 1;
+                    }
+                }
+                if let Some(n) = &node.borrow().right {
+                    self.que.push_front(n.clone());
+                    if self.flg {
+                        self.len += 1;
+                    }
+                }
+            };
+
+            self.flg = false;
+            return Some(node.borrow().val);
         }
     }
 }
@@ -271,19 +309,30 @@ impl IntoIterator for TreeNodeByZigZagLevelOrder {
     fn into_iter(self) -> Self::IntoIter {
         let mut que = VecDeque::new();
         que.push_back(Rc::new(RefCell::new(self.0)));
+        let is_order_left = true;
 
-        IntoIteratorZZ { que, stp: 0 }
+        IntoIteratorZZ {
+            que,
+            is_order_left,
+            len: 0,
+            stp: 0,
+            flg: false,
+        }
     }
 }
 
 #[test]
 fn zigzag_level_order_success() {
     let root = TreeNode {
-        val: 3,
-        left: new_node!(9),
+        val: 1,
+        left: Some(Rc::new(RefCell::new(TreeNode {
+            val: 2,
+            left: new_node!(3),
+            right: new_node!(4),
+        }))),
         right: Some(Rc::new(RefCell::new(TreeNode {
-            val: 20,
-            left: new_node!(15),
+            val: 5,
+            left: new_node!(6),
             right: new_node!(7),
         }))),
     };
@@ -297,4 +346,12 @@ fn zigzag_level_order_success() {
         "{:?}",
         zigzag_level_order2(Some(Rc::new(RefCell::new(root.clone()))))
     );
+
+    let mut v = vec![];
+    for e in root.iter_zigzag_level_order() {
+        println!("{:?}", e);
+        v.push(e);
+    }
+
+    println!("{:?}", v);
 }
