@@ -111,11 +111,11 @@ impl Iterator for IntoIteratorLR {
             None
         } else {
             let node = self.que.pop_front().unwrap();
-            if node.borrow().left.is_some() {
-                self.que.push_back(node.borrow().left.clone().unwrap());
+            if let Some(n) = node.borrow().left.clone() {
+                self.que.push_back(n);
             }
-            if node.borrow().right.is_some() {
-                self.que.push_back(node.borrow().right.clone().unwrap());
+            if let Some(n) = node.borrow().right.clone() {
+                self.que.push_back(n);
             }
 
             return Some(node.borrow().val);
@@ -141,13 +141,13 @@ fn level_order_success() {
         val: 1,
         left: Some(Rc::new(RefCell::new(TreeNode {
             val: 2,
-            left: new_node!(4),
-            right: new_node!(3),
-        }))),
-        right: Some(Rc::new(RefCell::new(TreeNode {
-            val: 2,
             left: new_node!(3),
             right: new_node!(4),
+        }))),
+        right: Some(Rc::new(RefCell::new(TreeNode {
+            val: 5,
+            left: new_node!(6),
+            right: new_node!(7),
         }))),
     };
 
@@ -161,9 +161,15 @@ fn level_order_success() {
         left_right_level_order2(Some(Rc::new(RefCell::new(root.clone()))))
     );
 
+    let mut v = vec![];
     for e in root.iter_left_right_level_order() {
         println!("{:?}", e);
+        v.push(e);
     }
+
+    println!("{:?}", v);
+
+    assert_eq!(vec![1, 2, 5, 3, 4, 6, 7], v);
 }
 
 // ================================================================================================
@@ -250,7 +256,6 @@ impl Iterator for IntoIteratorZZ {
     type Item = i32;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // dbg!(&self.que);
         if self.que.is_empty() {
             None
         } else {

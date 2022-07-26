@@ -8,7 +8,8 @@
 		"taste-nom/Cargo.toml",
 		"algo/Cargo.toml",
 		"hrtb/Cargo.toml",
-		"aio-demo/Cargo.toml"
+		"aio-demo/Cargo.toml",
+		"tile/Cargo.toml"
 	],
 	"python.formatting.provider": "black"
 }

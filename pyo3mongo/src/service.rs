@@ -123,9 +123,7 @@ impl GraphService {
     }
 
     pub async fn create_edge<'a>(&self, dto: EdgeDto<'a>) -> Pyo3MongoResult<Edge> {
-        if let Err(e) = self.check_edge_legitimacy(&dto).await {
-            return Err(e);
-        }
+        self.check_edge_legitimacy(&dto).await?;
 
         let insert = self
             .collection_edge()
@@ -169,9 +167,7 @@ impl GraphService {
     }
 
     pub async fn update_edge<'a>(&self, id: ObjectId, dto: EdgeDto<'a>) -> Pyo3MongoResult<Edge> {
-        if let Err(e) = self.check_edge_legitimacy(&dto).await {
-            return Err(e);
-        }
+        self.check_edge_legitimacy(&dto).await?;
 
         let id = doc! {"_id": id};
         let update = doc! {

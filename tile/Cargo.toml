@@ -1,0 +1,9 @@
+[package]
+name = "tile"
+authors = ["JacobX <jacobbishopxy@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+ref-cast = "1"
