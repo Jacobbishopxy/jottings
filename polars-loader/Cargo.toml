@@ -10,3 +10,4 @@ edition = "2021"
 polars = { version = "0", features = [
     "lazy",
 ]}
+ref-cast = "1"
