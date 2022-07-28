@@ -1,8 +1,8 @@
 {
-	"cSpell.words": ["conx", "thiserror", "tmap"],
+	"cSpell.words": ["conx", "dtype", "thiserror", "tmap"],
 	"rust-analyzer.linkedProjects": [
 		"pyo3mongo/Cargo.toml",
-		"polars-loader/Cargo.toml",
+		"polars-prober/Cargo.toml",
 		"std-traits/Cargo.toml",
 		"error-handling/Cargo.toml",
 		"taste-nom/Cargo.toml",

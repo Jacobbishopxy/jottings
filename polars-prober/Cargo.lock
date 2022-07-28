@@ -644,14 +644,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "polars-loader"
-version = "0.1.0"
-dependencies = [
- "polars",
- "ref-cast",
-]
-
-[[package]]
 name = "polars-ops"
 version = "0.22.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -659,6 +651,14 @@ checksum = "030ecd473be113cd0264f1bc19de39a844fa12fa565db9dc52c859cbc292cf04"
 dependencies = [
  "polars-arrow",
  "polars-core",
+]
+
+[[package]]
+name = "polars-prober"
+version = "0.1.0"
+dependencies = [
+ "polars",
+ "ref-cast",
 ]
 
 [[package]]
