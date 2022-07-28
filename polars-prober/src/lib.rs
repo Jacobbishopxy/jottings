@@ -1,6 +1,7 @@
 //! A jotting lib used for testing polars crate and etc.
 
 mod index;
+mod unsafe_index;
 
 use polars::prelude::*;
 

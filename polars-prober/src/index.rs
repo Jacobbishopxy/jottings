@@ -194,7 +194,6 @@ fn my_series_index_success() {
 
     let s = MySeriesIndexing::new(s);
 
-    let v = &s[1];
-
-    println!("{:?}", v);
+    println!("{:?}", &s[1]);
+    println!("{:?}", &s[3]);
 }
