@@ -18,7 +18,7 @@ trait MyValueTrait {
 }
 
 // null value
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 struct Null;
 
 macro_rules! impl_my_value_trait {
@@ -59,17 +59,78 @@ impl_my_value_trait!(Null, "null");
 #[repr(transparent)]
 struct MyValue(RefCell<Box<dyn MyValueTrait>>);
 
+#[allow(dead_code)]
 impl MyValue {
     fn dtype(&self) -> &'static str {
         self.0.borrow().dtype()
     }
+
+    fn new<T>(v: T) -> Self
+    where
+        Self: From<T>,
+    {
+        Self::from(v)
+    }
 }
 
-// impl AsRef<MyValue> for RefCell<Box<dyn MyValueTrait>> {
-//     fn as_ref(&self) -> &MyValue {
-//         unsafe { std::mem::transmute(self) }
-//     }
-// }
+macro_rules! compare_my_values {
+    ($l:expr, $r:expr, $t:ident) => {{
+        let lv = $l.0.borrow();
+        let lv = lv.as_any().downcast_ref::<$t>().unwrap();
+        let rv = $r.0.borrow();
+        let rv = rv.as_any().downcast_ref::<$t>().unwrap();
+
+        lv == rv
+    }};
+}
+
+impl PartialEq for MyValue {
+    fn eq(&self, other: &Self) -> bool {
+        let tl = self.0.borrow().dtype();
+        let tr = other.0.borrow().dtype();
+
+        match (tl, tr) {
+            ("bool", "bool") => compare_my_values!(self, other, bool),
+            ("u8", "u8") => compare_my_values!(self, other, u8),
+            ("u16", "u16") => compare_my_values!(self, other, u16),
+            ("u32", "u32") => compare_my_values!(self, other, u32),
+            ("u64", "u64") => compare_my_values!(self, other, u64),
+            ("i8", "i8") => compare_my_values!(self, other, i8),
+            ("i16", "i16") => compare_my_values!(self, other, i16),
+            ("i32", "i32") => compare_my_values!(self, other, i32),
+            ("i64", "i64") => compare_my_values!(self, other, i64),
+            ("f32", "f32") => compare_my_values!(self, other, f32),
+            ("f64", "f64") => compare_my_values!(self, other, f64),
+            ("String", "String") => compare_my_values!(self, other, String),
+            ("null", "null") => compare_my_values!(self, other, Null),
+            _ => false,
+        }
+    }
+}
+
+macro_rules! impl_from_x_for_my_value {
+    ($t:ident) => {
+        impl From<$t> for $crate::index::MyValue {
+            fn from(v: $t) -> Self {
+                MyValue(RefCell::new(Box::new(v)))
+            }
+        }
+    };
+}
+
+impl_from_x_for_my_value!(bool);
+impl_from_x_for_my_value!(u8);
+impl_from_x_for_my_value!(u16);
+impl_from_x_for_my_value!(u32);
+impl_from_x_for_my_value!(u64);
+impl_from_x_for_my_value!(i8);
+impl_from_x_for_my_value!(i16);
+impl_from_x_for_my_value!(i32);
+impl_from_x_for_my_value!(i64);
+impl_from_x_for_my_value!(f32);
+impl_from_x_for_my_value!(f64);
+impl_from_x_for_my_value!(String);
+impl_from_x_for_my_value!(Null);
 
 impl AsRef<MyValue> for RefCell<Box<dyn MyValueTrait>> {
     fn as_ref(&self) -> &MyValue {
@@ -117,6 +178,7 @@ fn my_value_ref_cast() {
     let res = MyValue::ref_cast(&v);
 
     println!("{:?}", res.dtype());
+    assert_eq!(res.dtype(), "bool");
 }
 
 // ================================================================================================
@@ -194,6 +256,8 @@ fn my_series_index_success() {
 
     let s = MySeriesIndexing::new(s);
 
+    assert_eq!(&s[1], &MyValue::new(false));
+    assert_eq!(&s[3], &MyValue::new(true));
     println!("{:?}", &s[1]);
     println!("{:?}", &s[3]);
 }

@@ -138,11 +138,12 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
                     None => Box::new(Null),
                 };
 
+                // turn `cache` into an immutable raw pointer
                 let r = &self.cache as *const Box<dyn MyValueTrait>;
+                // turn immutable raw pointer into a mutable pointer
                 let m = r as *mut Box<dyn MyValueTrait>;
-                unsafe {
-                    *m = res;
-                };
+                // assign result to mutable pointer
+                unsafe { *m = res };
 
                 self.cache.as_ref()
             }
@@ -155,6 +156,8 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
             DataType::Int32 => todo!(),
             DataType::Int64 => {
                 // directly call `.get` method, which has a runtime casting (less efficiency)
+                // since we already use pattern matching on `self.data.dtype()`, this case
+                // is only for demonstrating purpose
                 let res: Box<dyn MyValueTrait> = match self.data.get(index) {
                     AnyValue::Int64(v) => Box::new(v),
                     _ => Box::new(Null),
@@ -162,9 +165,7 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
 
                 let r = &self.cache as *const Box<dyn MyValueTrait>;
                 let m = r as *mut Box<dyn MyValueTrait>;
-                unsafe {
-                    *m = res;
-                };
+                unsafe { *m = res };
 
                 self.cache.as_ref()
             }
