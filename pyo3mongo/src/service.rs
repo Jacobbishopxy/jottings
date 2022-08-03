@@ -431,7 +431,7 @@ mod test_service {
         assert_ne!(update, get);
 
         let delete = gs.delete_vertex(id).await;
-        assert!(delete.is_ok());
+        assert!(delete.is_ok(), "delete vertex should always success");
     }
 
     #[tokio::test]
@@ -439,7 +439,7 @@ mod test_service {
         let gs = GraphService::new(URI, DB, CAT).await.unwrap();
 
         let res = gs.truncate_all().await;
-        assert!(res.is_ok());
+        assert!(res.is_ok(), "truncate all data should always success");
     }
 
     #[tokio::test]
@@ -531,7 +531,7 @@ mod test_service {
                 EdgeDto::new(node2.id.unwrap(), node3.id.unwrap(), Some(3.0), Some(LABEL)),
             )
             .await;
-        assert!(edge2update.is_ok());
+        assert!(edge2update.is_ok(), "update edge 2 should always success");
 
         // this will return edge1 and edge2
         let edges = gs
@@ -637,7 +637,10 @@ mod test_service {
 
         // delete node2, related edges should be deleted: n8 -> n2, n1 -> n2, n2 -> n3
         let delete_n2 = gs.delete_vertex(node2.id.unwrap()).await;
-        assert!(delete_n2.is_ok());
+        assert!(
+            delete_n2.is_ok(),
+            "delete vertex node 2 should always success"
+        );
 
         // node1 graph
         let (edges, vertexes) = gs
@@ -657,7 +660,10 @@ mod test_service {
 
         // delete node1, related edges should be deleted: n7 -> n1, n1 -> n4, n1 -> n5
         let delete_n1 = gs.delete_vertex(node1.id.unwrap()).await;
-        assert!(delete_n1.is_ok());
+        assert!(
+            delete_n1.is_ok(),
+            "delete vertex node 1 should always success"
+        );
 
         // node8 graph
         let (edges, vertexes) = gs
