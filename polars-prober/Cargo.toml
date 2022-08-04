@@ -7,7 +7,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-polars = { version = "0", features = [
-    "lazy",
-]}
+arrow2 = { version = "0", features = ["io_csv", "io_json", "io_parquet"]}
+polars = { version = "0", features = ["lazy", "object"]}
 ref-cast = "1"
+uuid = { version = "1", features = ["v4"] }
