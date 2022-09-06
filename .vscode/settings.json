@@ -1,5 +1,5 @@
 {
-	"cSpell.words": ["conx", "dtype", "thiserror", "tmap"],
+	"cSpell.words": ["conx", "dtype", "ndjson", "thiserror", "tmap"],
 	"rust-analyzer.linkedProjects": [
 		"pyo3mongo/Cargo.toml",
 		"polars-prober/Cargo.toml",

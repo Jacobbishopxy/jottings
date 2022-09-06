@@ -8,6 +8,7 @@ edition = "2021"
 
 [dependencies]
 arrow2 = { version = "0", features = ["io_csv", "io_json", "io_parquet"]}
+fallible-streaming-iterator = "0.1.9"
 polars = { version = "0", features = ["lazy", "object"]}
 ref-cast = "1"
 uuid = { version = "1", features = ["v4"] }

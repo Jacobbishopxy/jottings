@@ -1,13 +1,15 @@
 # Jotting
 
-- [Error handling](/error-handling/README.md)
+- [Error handling](./error-handling/README.md)
 
-- [Polars loader](/polars-loader/README.md)
+- [Polars prober](./polars-prober/README.md)
 
-- [Pyo3 Mongo](/pyo3mongo/README.md)
+- [Pyo3 Mongo](./pyo3mongo/README.md)
 
-- [Std traits](/std-traits/README.md)
+- [Std traits](./std-traits/README.md)
 
-- [Taste Nom](/taste-nom/README.md)
+- [Taste Nom](./taste-nom/README.md)
 
-- [Algo](/algo/README.md)
+- [Algo](./algo/README.md)
+
+- [Aio demo](./aio-demo/README.md)

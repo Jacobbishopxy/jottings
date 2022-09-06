@@ -172,47 +172,44 @@ impl PyGraph {
         Ok(PyGraph { service, runtime })
     }
 
-    pub fn create_vertex(&self, v: String) -> PyResult<Py<Vertex>> {
+    #[pyo3(text_signature = "($self, v)")]
+    pub fn create_vertex(self_: PyRef<'_, Self>, v: String) -> PyResult<Vertex> {
         let dto = VertexDto::new(&v);
-        let res = self
+        let res = self_
             .runtime
-            .block_on(async { self.service.create_vertex(dto).await })?;
+            .block_on(async { self_.service.create_vertex(dto).await })?;
 
-        // Global Interpreter Lock
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        Py::new(py, res)
+        Ok(res)
     }
 
-    pub fn create_edge(&self, v: EdgeInput) -> PyResult<Py<Edge>> {
+    #[pyo3(text_signature = "($self, v)")]
+    pub fn create_edge(self_: PyRef<'_, Self>, v: EdgeInput) -> PyResult<Edge> {
         let dto = EdgeDto::try_from(&v)?;
-        let res = self
+        let res = self_
             .runtime
-            .block_on(async { self.service.create_edge(dto).await })?;
+            .block_on(async { self_.service.create_edge(dto).await })?;
 
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        Py::new(py, res)
+        Ok(res)
     }
 
+    #[pyo3(text_signature = "($self, vertex_id, label, depth)")]
     pub fn get_graph(
-        &self,
+        self_: PyRef<'_, Self>,
         vertex_id: String,
         label: Option<&str>,
         depth: Option<i32>,
-    ) -> PyResult<Py<GraphOutput>> {
-        let (edges, vertexes) = self.runtime.block_on(async {
+    ) -> PyResult<GraphOutput> {
+        let (edges, vertexes) = self_.runtime.block_on(async {
             let oid = ObjectId::from_str(&vertex_id)?;
-            self.service
+            self_
+                .service
                 .get_graph_from_vertex_by_label(oid, label, depth)
                 .await
         })?;
 
         let res = GraphOutput { vertexes, edges };
 
-        let gil = Python::acquire_gil();
-        let py = gil.python();
-        Py::new(py, res)
+        Ok(res)
     }
 }
 
