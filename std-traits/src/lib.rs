@@ -1,6 +1,5 @@
 //! std-traits playground
 
-#![feature(generic_associated_types)]
 #![feature(type_alias_impl_trait)]
 
 mod case_asmut;
