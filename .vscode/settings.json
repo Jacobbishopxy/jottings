@@ -9,7 +9,8 @@
 		"algo/Cargo.toml",
 		"hrtb/Cargo.toml",
 		"aio-demo/Cargo.toml",
-		"tile/Cargo.toml"
+		"tile/Cargo.toml",
+		"sqlx-arrow2/Cargo.toml"
 	],
 	"python.formatting.provider": "black"
 }

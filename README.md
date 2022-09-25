@@ -13,3 +13,5 @@
 - [Algo](./algo/README.md)
 
 - [Aio demo](./aio-demo/README.md)
+
+- [Sqlx Arrow2](./sqlx-arrow2/README.md)
