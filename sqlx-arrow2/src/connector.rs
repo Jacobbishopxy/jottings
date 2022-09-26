@@ -3,7 +3,7 @@
 use std::future::Future;
 use std::str::FromStr;
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 use futures::future::BoxFuture;
 use sqlx::mssql::{MssqlPool, MssqlPoolOptions};
 use sqlx::mysql::{MySqlPool, MySqlPoolOptions};
@@ -209,10 +209,10 @@ macro_rules! impl_sql_meta {
             ) -> BoxFuture<'a, Result<Vec<T>>> {
                 let q = async move {
                     sqlx::query(sql)
-                        .try_map(|r| Ok(pipe(r).map_err(|e| anyhow!(e))))
+                        .try_map(|r| Ok(pipe(r).map_err(Error::msg)))
                         .fetch_all(self)
                         .await
-                        .map_err(|e| anyhow!(e))
+                        .map_err(Error::msg)
                         .and_then(|r| r.into_iter().collect::<Result<Vec<T>>>())
                 };
                 Box::pin(q)
@@ -225,10 +225,10 @@ macro_rules! impl_sql_meta {
             ) -> BoxFuture<'a, Result<T>> {
                 let q = async move {
                     sqlx::query(sql)
-                        .try_map(|r| Ok(pipe(r).map_err(|e| anyhow!(e))))
+                        .try_map(|r| Ok(pipe(r).map_err(Error::msg)))
                         .fetch_one(self)
                         .await
-                        .map_err(|e| anyhow!(e))
+                        .map_err(Error::msg)
                         .and_then(|r| r)
                 };
                 Box::pin(q)
@@ -242,7 +242,7 @@ macro_rules! impl_sql_meta {
                     sqlx::query_as::<_, T>(sql)
                         .fetch_all(self)
                         .await
-                        .map_err(|e| anyhow!(e))
+                        .map_err(Error::msg)
                 };
                 Box::pin(q)
             }
@@ -258,7 +258,7 @@ macro_rules! impl_sql_meta {
                     sqlx::query_as::<_, T>(sql)
                         .fetch_one(self)
                         .await
-                        .map_err(|e| anyhow!(e))
+                        .map_err(Error::msg)
                 };
                 Box::pin(q)
             }
@@ -267,7 +267,7 @@ macro_rules! impl_sql_meta {
                 &'a self,
                 sql: &'a str,
             ) -> BoxFuture<'a, Result<<Self::DB as Database>::QueryResult>> {
-                let q = async move { sqlx::query(sql).execute(self).await.map_err(|e| anyhow!(e)) };
+                let q = async move { sqlx::query(sql).execute(self).await.map_err(Error::msg) };
                 Box::pin(q)
             }
         }
