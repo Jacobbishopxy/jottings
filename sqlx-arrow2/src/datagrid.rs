@@ -1,23 +1,22 @@
 //! Datagrid
 
-use std::sync::Arc;
-
-use futures::pin_mut;
-use futures::StreamExt;
-use tokio::fs::File;
-use tokio_util::compat::*;
-
-use anyhow::{anyhow, Error, Result};
+use anyhow::{Error, Result};
 use arrow2::array::*;
 use arrow2::chunk::Chunk;
-use arrow2::datatypes::{Field, Schema};
+use arrow2::datatypes::*;
 use arrow2::io::avro::avro_schema;
-use arrow2::io::avro::read;
-use arrow2::io::avro::write;
+use arrow2::io::avro::read as avro_read;
+use arrow2::io::avro::write as avro_write;
+use arrow2::io::parquet::read as parquet_read;
+use arrow2::io::parquet::write as parquet_write;
 
 pub struct Datagrid(Chunk<Box<dyn Array>>);
 
 impl Datagrid {
+    pub fn empty() -> Self {
+        Datagrid(Chunk::new(vec![]))
+    }
+
     pub fn new(arrays: Vec<Box<dyn Array>>) -> Self {
         Datagrid(Chunk::new(arrays))
     }
@@ -33,17 +32,17 @@ impl Datagrid {
         schema: &Schema,
         compression: Option<avro_schema::file::Compression>,
     ) -> Result<()> {
-        let record = write::to_record(schema)?;
+        let record = avro_write::to_record(schema)?;
         let arrays = self.0.arrays();
 
         let mut serializers = arrays
             .iter()
             .zip(record.fields.iter())
-            .map(|(array, field)| write::new_serializer(array.as_ref(), &field.schema))
+            .map(|(array, field)| avro_write::new_serializer(array.as_ref(), &field.schema))
             .collect::<Vec<_>>();
         let mut block = avro_schema::file::Block::new(arrays[0].as_ref().len(), vec![]);
 
-        write::serialize(&mut serializers, &mut block);
+        avro_write::serialize(&mut serializers, &mut block);
 
         let mut compressed_block = avro_schema::file::CompressedBlock::default();
 
@@ -58,30 +57,72 @@ impl Datagrid {
         Ok(())
     }
 
-    pub async fn read_avro<R: std::io::Read>(
-        &mut self,
-        reader: &mut R,
-        compression: Option<avro_schema::file::Compression>,
-    ) -> Result<()> {
+    pub fn read_avro<R: std::io::Read>(&mut self, reader: &mut R) -> Result<()> {
         let metadata = avro_schema::read::read_metadata(reader).map_err(Error::msg)?;
 
-        let schema = read::infer_schema(&metadata.record).map_err(Error::msg)?;
+        let schema = avro_read::infer_schema(&metadata.record).map_err(Error::msg)?;
 
-        let mut blocks = read::Reader::new(reader, metadata, schema.fields, None);
+        let mut blocks = avro_read::Reader::new(reader, metadata, schema.fields, None);
 
-        while let Some(Ok(c)) = blocks.next() {
+        if let Some(Ok(c)) = blocks.next() {
             self.0 = c;
         }
 
         Ok(())
     }
+
+    pub fn write_parquet<W: std::io::Write>() -> Result<()> {
+        todo!()
+    }
+
+    pub fn read_parquet<R: std::io::Read>() -> Result<()> {
+        todo!()
+    }
 }
 
-#[test]
-fn name() {
-    let a = Int32Vec::from([Some(1), None, Some(3)]).as_box();
-    let b = Float32Vec::from([Some(2.1), None, Some(6.2)]).as_box();
-    let c = Utf8Array::<i32>::from([Some("a"), Some("b"), Some("c")]).boxed();
+#[cfg(test)]
+mod test_datagrid {
 
-    let foo = Chunk::new(vec![a, b, c]);
+    use super::*;
+
+    const FILE_PATH: &str = "./cache/test.avro";
+
+    #[test]
+    fn avro_write_success() {
+        let a = Int32Array::from([Some(1), None, Some(3)]).boxed();
+        let b = Float32Array::from([Some(2.1), None, Some(6.2)]).boxed();
+        let c = Utf8Array::<i32>::from([Some("a"), Some("b"), Some("c")]).boxed();
+
+        let schema = vec![
+            Field::new("c1", a.data_type().clone(), true),
+            Field::new("c2", b.data_type().clone(), true),
+            Field::new("c3", c.data_type().clone(), true),
+        ]
+        .into();
+
+        let datagrid = Datagrid::new(vec![a, b, c]);
+
+        let mut file = std::fs::File::create(FILE_PATH).unwrap();
+
+        datagrid
+            .write_avro(&mut file, &schema, None)
+            .expect("write success")
+    }
+
+    #[test]
+    fn avro_read_success() {
+        let mut datagrid = Datagrid::empty();
+
+        let mut file = std::fs::File::open(FILE_PATH).unwrap();
+
+        datagrid.read_avro(&mut file).unwrap();
+
+        let data_types = datagrid
+            .0
+            .arrays()
+            .iter()
+            .map(|a| a.data_type())
+            .collect::<Vec<_>>();
+        println!("{:?}", data_types);
+    }
 }
