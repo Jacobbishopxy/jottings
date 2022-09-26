@@ -1,9 +1,9 @@
 //! Datagrid
 
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Error, Result};
 use arrow2::array::*;
 use arrow2::chunk::Chunk;
-use arrow2::datatypes::*;
+use arrow2::datatypes::{Field, Schema};
 use arrow2::io::avro::avro_schema;
 use arrow2::io::avro::read as avro_read;
 use arrow2::io::avro::write as avro_write;
@@ -24,6 +24,25 @@ impl Datagrid {
     pub fn try_new(arrays: Vec<Box<dyn Array>>) -> Result<Self> {
         let chunk = Chunk::try_new(arrays).map_err(Error::msg)?;
         Ok(Datagrid(chunk))
+    }
+
+    pub fn gen_schema(&self, names: &[&str]) -> Result<Schema> {
+        let arrays = self.0.arrays();
+        let al = arrays.len();
+        let nl = names.len();
+        if al != nl {
+            return Err(anyhow!(
+                "length does not match: names.len ${nl} & arrays.len ${al}"
+            ));
+        }
+
+        let fld = names
+            .iter()
+            .zip(arrays)
+            .map(|(n, a)| Field::new(*n, a.data_type().clone(), a.null_count() > 0))
+            .collect::<Vec<_>>();
+
+        Ok(Schema::from(fld))
     }
 
     pub fn write_avro<W: std::io::Write>(
@@ -148,14 +167,8 @@ mod test_datagrid {
         let b = Float32Array::from([Some(2.1), None, Some(6.2)]).boxed();
         let c = Utf8Array::<i32>::from([Some("a"), Some("b"), Some("c")]).boxed();
 
-        let schema = vec![
-            Field::new("c1", a.data_type().clone(), true),
-            Field::new("c2", b.data_type().clone(), true),
-            Field::new("c3", c.data_type().clone(), true),
-        ]
-        .into();
-
         let datagrid = Datagrid::new(vec![a, b, c]);
+        let schema = datagrid.gen_schema(&["c1", "c2", "c3"]).unwrap();
 
         let mut file = std::fs::File::create(FILE_AVRO).unwrap();
 
@@ -187,14 +200,8 @@ mod test_datagrid {
         let b = Float32Array::from([Some(2.1), None, Some(6.2)]).boxed();
         let c = Utf8Array::<i32>::from([Some("a"), Some("b"), Some("c")]).boxed();
 
-        let schema = vec![
-            Field::new("c1", a.data_type().clone(), true),
-            Field::new("c2", b.data_type().clone(), true),
-            Field::new("c3", c.data_type().clone(), true),
-        ]
-        .into();
-
         let datagrid = Datagrid::new(vec![a, b, c]);
+        let schema = datagrid.gen_schema(&["c1", "c2", "c3"]).unwrap();
 
         let mut file = std::fs::File::create(FILE_PARQUET).unwrap();
 
