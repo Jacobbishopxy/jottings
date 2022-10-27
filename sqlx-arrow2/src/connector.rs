@@ -180,8 +180,8 @@ pub trait SqlMeta: Sized {
 macro_rules! impl_sql_meta {
     ($db:ident, $db_pool_options:ident, $db_pool:ident) => {
         impl SqlMeta for Pool<$db> {
-            type FutSelf<'a> = impl Future<Output = Result<Self>>;
-            type FutNil<'a> = impl Future<Output = Result<()>>;
+            type FutSelf<'a> = impl Future<Output = Result<Self>> + 'a;
+            type FutNil<'a> = impl Future<Output = Result<()>> + 'a;
             type DB = $db;
 
             fn new(conn_str: &str) -> Self::FutSelf<'_> {

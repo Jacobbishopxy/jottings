@@ -1,5 +1,7 @@
 //! Datagrid
 
+use std::io::{Read, Seek, Write};
+
 use anyhow::{anyhow, Error, Result};
 use arrow2::array::*;
 use arrow2::chunk::Chunk;
@@ -45,7 +47,7 @@ impl Datagrid {
         Ok(Schema::from(fld))
     }
 
-    pub fn write_avro<W: std::io::Write>(
+    pub fn write_avro<W: Write>(
         &self,
         writer: &mut W,
         schema: &Schema,
@@ -76,7 +78,7 @@ impl Datagrid {
         Ok(())
     }
 
-    pub fn read_avro<R: std::io::Read>(&mut self, reader: &mut R) -> Result<()> {
+    pub fn read_avro<R: Read>(&mut self, reader: &mut R) -> Result<()> {
         let metadata = avro_schema::read::read_metadata(reader).map_err(Error::msg)?;
 
         let schema = avro_read::infer_schema(&metadata.record)?;
@@ -90,7 +92,7 @@ impl Datagrid {
         Ok(())
     }
 
-    pub fn write_parquet<W: std::io::Write>(
+    pub fn write_parquet<W: Write>(
         &self,
         writer: &mut W,
         schema: &Schema,
@@ -124,7 +126,7 @@ impl Datagrid {
         Ok(())
     }
 
-    pub fn read_parquet<R: std::io::Read + std::io::Seek>(&mut self, reader: &mut R) -> Result<()> {
+    pub fn read_parquet<R: Read + Seek>(&mut self, reader: &mut R) -> Result<()> {
         let metadata = parquet_read::read_metadata(reader)?;
 
         let schema = parquet_read::infer_schema(&metadata)?;
