@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <iostream>
+#include <string>
 
 /**
  * @brief a function pointer pointed to a lambda expression
@@ -81,6 +82,84 @@ template <typename T> void generic_lambda1(T value) {
   print(value);
 }
 
+/**
+ * @brief simple capture, ⚠️ key point: Clone
+ *
+ * `data` has been cloned when `rise_headless_horseman` defined.
+ * By default, variable is captured by `const`, thus it is immutable.
+ */
+void simple_capture() {
+  std::string data{"halloween has come!"};
+
+  auto rise_headless_horseman{[data](std::string_view str) { std::cout << data << " " << str; }};
+
+  const std::string_view greet{
+      "Prepare yourselves, the bells have tolled! Shelter your weak, your young and your old! Each "
+      "of you shall pay the final sum. Cry for mercy, the reckoning has come!"};
+
+  rise_headless_horseman(greet);
+}
+
+/**
+ * @brief mutable capture, ⚠️ key point: mutable for all captured variables
+ *
+ * `mutable` keyword, remove the default `const` capturing limitation,
+ * whereas it exposes potential risks as well (all captured variables turn into mutable).
+ */
+void mutable_capture() {
+  int quiver{8};
+
+  auto shoot{[quiver]() mutable {
+    --quiver;
+    std::cout << "Arrows left: " << quiver << std::endl;
+  }};
+
+  shoot();
+  shoot();
+  shoot();
+}
+
+/**
+ * @brief reference capture, ⚠️ key point: Reference
+ */
+void reference_capture() {
+  int magazine{120};
+
+  auto fire{[&magazine]() {
+    magazine -= 10;
+    std::cout << "Bullets left: " << magazine << std::endl;
+  }};
+
+  fire();
+  fire();
+  fire();
+}
+
+/**
+ * @brief static variable inside a lambda
+ *
+ * Note: acts like a Rust's closure who prefixes a `move` keyword.
+ */
+void simple_capture_with_static_var() {
+
+  auto shoot{[]() {
+    static int quiver{8};
+
+    --quiver;
+    std::cout << "Arrows left: " << quiver << std::endl;
+  }};
+
+  shoot();
+  shoot();
+  shoot();
+}
+
+// TODO:
+// mixing capture
+// default capture
+// new vars in capture list
+// lambda's copy
+
 int main() {
 
   // lambda_and_fn_ptr();
@@ -91,8 +170,13 @@ int main() {
 
   // generic_lambda0("foo");
   // generic_lambda0(233);
-  generic_lambda1("foo");
-  generic_lambda1(233);
+  // generic_lambda1("foo");
+  // generic_lambda1(233);
+
+  // simple_capture();
+  // mutable_capture();
+  // reference_capture();
+  simple_capture_with_static_var();
 
   return 0;
 }
