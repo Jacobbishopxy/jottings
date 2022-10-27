@@ -16,17 +16,17 @@ impl std::fmt::Display for CustomError {
 
 impl<'a> From<(&'a str, ErrorKind)> for CustomError {
     fn from(error: (&'a str, ErrorKind)) -> Self {
-        CustomError(format!("error code was: {:?}", error))
+        CustomError(format!("error code was: {error:?}"))
     }
 }
 
 impl<'a> ParseError<&'a str> for CustomError {
     fn from_error_kind(_: &'a str, kind: ErrorKind) -> Self {
-        CustomError(format!("error code was: {:?}", kind))
+        CustomError(format!("error code was: {kind:?}"))
     }
 
     fn append(_: &'a str, kind: ErrorKind, other: CustomError) -> Self {
-        CustomError(format!("{:?}\nerror code was: {:?}", other, kind))
+        CustomError(format!("{other:?}\nerror code was: {kind:?}"))
     }
 }
 

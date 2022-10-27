@@ -25,7 +25,7 @@ impl FromStr for SqlBuilder {
             "mysql" => Ok(SqlBuilder::Mysql),
             "postgres" => Ok(SqlBuilder::Postgres),
             "sqlite" => Ok(SqlBuilder::Sqlite),
-            _ => Err(TasteNomError::Sql(format!("unknown database type: {}", s))),
+            _ => Err(TasteNomError::Sql(format!("unknown database type: {s}"))),
         }
     }
 }
@@ -163,53 +163,53 @@ mod custom_error_tests {
     fn driver_and_rest() {
         let foo = take_driver_and_rest(CONN1);
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
     }
 
     #[test]
     fn username_and_rest() {
         let foo = take_username_and_rest("root:root@localhost:3306/test");
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
     }
 
     #[test]
     fn password_and_rest() {
         let foo = take_password_and_rest("root@localhost:3306/test");
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
     }
 
     #[test]
     fn host_and_rest() {
         let foo = take_host_and_rest("localhost:3306/test");
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
     }
 
     #[test]
     fn port_and_db() {
         let foo = take_port_and_database("3306/test");
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
     }
 
     #[test]
     fn conn_info() {
         let foo = get_conn_info1(CONN1);
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
 
         let foo = get_conn_info2(CONN1);
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
 
         let foo = get_conn_info3(CONN1);
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
 
         let foo = get_conn_info3(CONN2);
         assert!(foo.is_ok());
-        println!("{:?}", foo);
+        println!("{foo:?}");
     }
 }

@@ -20,19 +20,19 @@ struct ClusterMap {
 #[allow(dead_code)]
 fn get_cluster_info(path: &str) -> Result<ClusterMap> {
     let config =
-        std::fs::read_to_string(path).with_context(|| format!("Failed to read from {}", path))?;
+        std::fs::read_to_string(path).with_context(|| format!("Failed to read from {path}"))?;
     let map = from_str(&config);
 
     match map {
         Ok(map) => Ok(map),
-        Err(e) => Err(anyhow!("Failed to parse config: {}", e)),
+        Err(e) => Err(anyhow!("Failed to parse config: {e}")),
     }
 }
 
 #[test]
 fn test_get_cluster_info() {
     let cm = get_cluster_info("./mock/cluster_map.json");
-    println!("{:?}", cm);
+    println!("{cm:?}");
 }
 
 /*
@@ -73,7 +73,7 @@ fn get_cluster_info_pro(path: &str) -> Result<ClusterMap> {
 #[test]
 fn test_get_cluster_info_pro() {
     match get_cluster_info_pro("./mock/cluster_map.json") {
-        Ok(cm) => println!("{:?}", cm),
-        Err(e) => println!("{:?}", e),
+        Ok(cm) => println!("{cm:?}"),
+        Err(e) => println!("{e:?}"),
     };
 }

@@ -196,7 +196,7 @@ mod test_bfs_and_dfs {
         println!("directed graph: ");
 
         for (i, item) in arr.iter_mut().enumerate().take(9).skip(1) {
-            print!("vertex {} => ", i);
+            print!("vertex {i} => ");
             for d in &data {
                 if d[0] == i {
                     item.0.insert(d[1]);
@@ -214,7 +214,7 @@ mod test_bfs_and_dfs {
         let v = create_graphic_arr();
 
         for i in v {
-            println!("{:?}", i);
+            println!("{i:?}");
         }
     }
 

@@ -42,7 +42,7 @@ fn main() -> Result<()> {
 }
 
 fn handle_connection(client: std::net::TcpStream, addr: std::net::SocketAddr) {
-    println!("{} connected", addr);
+    println!("{addr} connected");
     let mut buf = [0u8; 1024];
     let mut client = client;
     loop {
