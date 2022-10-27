@@ -59,13 +59,40 @@ void passing_lambda_to_fn(const std::function<int(int)>& fn) {
   std::cout << fn(input) << std::endl;
 }
 
+/**
+ * @brief generic lambda parameter
+ *
+ * @param value a generic type, decided at compile time
+ */
+void generic_lambda0(auto value) {
+  auto print{[](auto v) { std::cout << "value: " << v << std::endl; }};
+
+  print(value);
+}
+
+/**
+ * @brief function template
+ *
+ * @param value a generic type, decided at compile time
+ */
+template <typename T> void generic_lambda1(T value) {
+  auto print{[](T v) { std::cout << "value: " << v << std::endl; }};
+
+  print(value);
+}
+
 int main() {
 
   // lambda_and_fn_ptr();
   // simple_lambda1();
   // simple_lambda2();
 
-  passing_lambda_to_fn([](int i) { return i * 2; });
+  // passing_lambda_to_fn([](int i) { return i * 2; });
+
+  // generic_lambda0("foo");
+  // generic_lambda0(233);
+  generic_lambda1("foo");
+  generic_lambda1(233);
 
   return 0;
 }

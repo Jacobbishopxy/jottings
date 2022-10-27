@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "lambda_rs"
+name = "lambda-rs"
 version = "0.1.0"

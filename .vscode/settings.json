@@ -11,7 +11,7 @@
 		"aio-demo/Cargo.toml",
 		"tile/Cargo.toml",
 		"sqlx-arrow2/Cargo.toml",
-		"lambda_comparison/lambda_rs/Cargo.toml"
+		"lambda-comparison/lambda-rs/Cargo.toml"
 	],
 	"python.formatting.provider": "black",
 	"files.associations": {
