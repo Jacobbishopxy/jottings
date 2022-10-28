@@ -48,7 +48,13 @@
 		"tuple": "cpp",
 		"type_traits": "cpp",
 		"typeinfo": "cpp",
-		"utility": "cpp"
+		"utility": "cpp",
+		"chrono": "cpp",
+		"cstddef": "cpp",
+		"ctime": "cpp",
+		"ratio": "cpp",
+		"variant": "cpp"
 	},
-	"cmake.sourceDirectory": "${workspaceFolder}/lambda-comparison/lambda-cpp"
+	"cmake.sourceDirectory": "${workspaceFolder}/lambda-comparison/lambda-cpp",
+	"C_Cpp.errorSquiggles": "enabled"
 }

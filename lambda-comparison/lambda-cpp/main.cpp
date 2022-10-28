@@ -201,9 +201,118 @@ void mixing_capture() {
   range(false);
 }
 
+/**
+ * @brief capture by value without explicit declaring captured variables
+ */
+void default_value_capture() {
+  int player{10};
+
+  auto lbd{[=]() {
+    // buffed by a holy priest
+    std::cout << "Player get buffed: " << player + 5 << std::endl;
+  }};
+
+  lbd();
+
+  std::cout << "The original player: " << player << std::endl;
+}
+
+/**
+ * @brief capture by reference without explicit declaring captured variables
+ */
+void default_reference_capture() {
+  int boss{100};
+
+  auto lbd{[&]() {
+    // attacked by a hunter's aimed shot
+    boss -= 20;
+    std::cout << "Boss get hit: " << boss << std::endl;
+  }};
+
+  lbd();
+
+  std::cout << "The original boss: " << boss << std::endl;
+}
+
+/**
+ * @brief mixing default capture
+ *
+ * value capture a & b, reference capture c
+ * [a, b, &c](){};
+ *
+ * reference capture c, value capture the rest
+ * [=, &c](){};
+ *
+ * value capture a, reference capture the rest
+ * [&, a](){};
+ *
+ * ⚠️ illegal, already reference captured all
+ * [&, &c](){};
+ *
+ * ⚠️ illegal, already value captured all
+ * [=, a](){};
+ *
+ * ⚠️ illegal, captured a twice
+ * [a, &b, &a](){};
+ *
+ * ⚠️ illegal, default capture should always at the first
+ * [armor, &](){};
+ *
+ */
+void default_mixing_capture() {
+  int boss_health{100};
+  int player_health{10};
+
+  const int boss_dmg{3};
+  const int player_dmg{1};
+
+  // boss -> player
+  auto boss_player{[=, &player_health]() {
+    player_health -= boss_dmg;
+    std::cout << "The boss has made " << boss_dmg << " to the player, and the player has left " << player_health
+              << " health!" << std::endl;
+  }};
+
+  // player -> boss
+  auto player_boss{[&, player_dmg]() {
+    boss_health -= player_dmg;
+    std::cout << "The play has made " << player_dmg << " to the boss, and the boss has left " << boss_health
+              << " health!" << std::endl;
+  }};
+
+  boss_player();
+  player_boss();
+  player_boss();
+  player_boss();
+  boss_player();
+  player_boss();
+}
+
+/**
+ * @brief capture with initializers
+ */
+void init_var_capture() {
+  int life{3};
+
+  // &o is initialzed as life's reference
+  // d is initialzed from cloned life
+  auto double_life{[&o = life, d{life * 2}]() {
+    o *= 2;
+    std::cout << "1. Doubled life is " << o << std::endl;
+    std::cout << "2. Doubled life is " << d << std::endl;
+  }};
+
+  // print 6, 6
+  double_life();
+  // print 12, 6
+  // this is because `d{life * 2}` only initialzed once (when the first call is defined)
+  double_life();
+
+  // 12, no doubt `o *= 2;` has been called twice
+  std::cout << "The original life has been changed to: " << life << std::endl;
+}
+
 // TODO:
-// default capture
-// new vars in capture list
 // lambda's copy
 
 int main() {
@@ -223,7 +332,13 @@ int main() {
   // mutable_capture();
   // reference_capture();
   // simple_capture_with_static_var();
-  mixing_capture();
+  // mixing_capture();
+
+  // default_value_capture();
+  // default_reference_capture();
+  // default_mixing_capture();
+
+  init_var_capture();
 
   return 0;
 }
