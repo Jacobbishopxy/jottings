@@ -154,8 +154,54 @@ void simple_capture_with_static_var() {
   shoot();
 }
 
+/**
+ * @brief mixing capture by reference and by value
+ *
+ * Note: still, `static` is used in lambdas, not a good idea, but for illustration
+ */
+void mixing_capture() {
+  // capture by reference, by this means, players aiming one single target
+  int boss{100};
+  // capture by value, by this means, represents different players
+  int player{10};
+
+  auto melee{[&boss, player](bool offensive) {
+    static int p{player};
+    char direction{'>'};
+    if (offensive) {
+      boss -= 10;
+      direction = '<';
+    } else {
+      p -= 1;
+      direction = '>';
+    }
+
+    std::cout << "boss[ " << boss << " ] " << direction << " melee[ " << p << " ]" << std::endl;
+  }};
+
+  auto range{[&boss, player](bool offensive) {
+    static int p{player};
+    char direction{'>'};
+    if (offensive) {
+      boss -= 20;
+      direction = '<';
+    } else {
+      p -= 3;
+      direction = '>';
+    }
+
+    std::cout << "boss[ " << boss << " ]  " << direction << "  range[ " << p << " ]" << std::endl;
+  }};
+
+  melee(false);
+  melee(false);
+  range(true);
+  range(true);
+  melee(true);
+  range(false);
+}
+
 // TODO:
-// mixing capture
 // default capture
 // new vars in capture list
 // lambda's copy
@@ -176,7 +222,8 @@ int main() {
   // simple_capture();
   // mutable_capture();
   // reference_capture();
-  simple_capture_with_static_var();
+  // simple_capture_with_static_var();
+  mixing_capture();
 
   return 0;
 }
