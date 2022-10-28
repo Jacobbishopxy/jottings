@@ -59,7 +59,7 @@ pub enum ValueType {
     String,
 }
 
-lazy_static::lazy_static! {
+lazy_static! {
     // str -> mysql data types
     pub static ref MYSQL_TMAP: HashMap<&'static str, ValueType> = {
         HashMap::from([

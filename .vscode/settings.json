@@ -49,5 +49,6 @@
 		"type_traits": "cpp",
 		"typeinfo": "cpp",
 		"utility": "cpp"
-	}
+	},
+	"cmake.sourceDirectory": "${workspaceFolder}/lambda-comparison/lambda-cpp"
 }
