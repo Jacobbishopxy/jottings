@@ -312,8 +312,52 @@ void init_var_capture() {
   std::cout << "The original life has been changed to: " << life << std::endl;
 }
 
-// TODO:
-// lambda's copy
+/**
+ * @brief lambda is an object, which can be copy and modified
+ *
+ * Although a `mutable` keyword has been used in here, `stage` is still
+ * captured by value (cloned). Hence, `stage` turns into a stateful variable
+ * who has been stored inside the lambda. It turns out, whenever a clone has
+ * been made upon `step_forward`, its state (`stage`) would have been cloned
+ * as well.
+ */
+void copy_lambda() {
+  int stage{0};
+
+  auto step_forward{[stage]() mutable {
+    stage++;
+    std::cout << "step forward: " << stage << std::endl;
+  }};
+
+  step_forward(); // stage -> 1
+
+  auto another_sf{step_forward}; // stage: 1
+
+  step_forward(); // stage -> 2
+  another_sf();   // stage -> 2
+
+  // no doubt, stage is still `0` right here
+  std::cout << "final stage: " << stage << std::endl;
+}
+
+// `auto&` means type deduction of the argument must be a reference
+// by the later call, it turns out to be `std::function<void()>&`
+void copy_invoke(const auto& fn) { fn(); }
+
+/**
+ * @brief copy lambda by reference
+ *
+ * type `std::reference_wrapper` created by `std::ref`
+ */
+void copy_ref_lambda() {
+  int stage{0};
+
+  auto step_forward{[stage]() mutable { std::cout << ++stage << std::endl; }};
+
+  copy_invoke(std::ref(step_forward)); // stage -> 1
+  copy_invoke(std::ref(step_forward)); // stage -> 2
+  copy_invoke(std::ref(step_forward)); // stage -> 3
+}
 
 int main() {
 
@@ -338,7 +382,9 @@ int main() {
   // default_reference_capture();
   // default_mixing_capture();
 
-  init_var_capture();
+  // init_var_capture();
+  // copy_lambda();
+  copy_ref_lambda();
 
   return 0;
 }

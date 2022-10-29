@@ -179,6 +179,49 @@ fn mutable_capture2() {
 }
 
 /**
+ * Capture by reference
+ */
+#[allow(dead_code)]
+fn reference_capture1() {
+    // let mut quiver = 8;
+    let quiver = 8;
+
+    let check = || {
+        println!("Arrows check {:?}", &quiver);
+    };
+
+    check();
+
+    // compile error: violate borrow checker
+    // quiver -= 1;
+    // check();
+}
+
+/**
+ * Capture by reference.
+ *
+ * As a complement of , using `Rc<RefCell<T>>` to lift borrowing rules into runtime
+ */
+#[allow(dead_code)]
+fn reference_capture2() {
+    use std::cell::RefCell;
+    use std::rc::Rc;
+
+    let quiver = Rc::new(RefCell::new(8));
+
+    let check = || {
+        // Note: a `.clone()` on `Rc` only clones a memory address
+        println!("Arrows check {:?}", quiver.clone().borrow());
+    };
+
+    check();
+
+    *quiver.borrow_mut() -= 1;
+
+    check();
+}
+
+/**
  * Capture by ownership
  *
  * Note: acts like a `static` variable in a C++'s lambda function.
@@ -269,6 +312,12 @@ mod tests {
     fn mutable_capture_success() {
         mutable_capture1();
         mutable_capture2();
+    }
+
+    #[test]
+    fn reference_capture_success() {
+        reference_capture1();
+        reference_capture2();
     }
 
     #[test]
