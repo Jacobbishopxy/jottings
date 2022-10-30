@@ -136,6 +136,25 @@ void reference_capture() {
 }
 
 /**
+ * @brief reference capture, and lambda clone
+ */
+void reference_capture_and_lambda_clone() {
+  int bucket{100};
+
+  auto drip{[&bucket]() {
+    bucket -= 1;
+    std::cout << "Bucket left: " << bucket << std::endl;
+  }};
+
+  drip();
+
+  auto anotherDrip{drip};
+
+  anotherDrip();
+  drip();
+}
+
+/**
  * @brief static variable inside a lambda
  *
  * Note: acts like a Rust's closure who prefixes a `move` keyword.
@@ -352,7 +371,10 @@ void copy_invoke(const auto& fn) { fn(); }
 void copy_ref_lambda() {
   int stage{0};
 
-  auto step_forward{[stage]() mutable { std::cout << ++stage << std::endl; }};
+  auto step_forward{[stage]() mutable {
+    // stage is modified
+    std::cout << ++stage << std::endl;
+  }};
 
   copy_invoke(std::ref(step_forward)); // stage -> 1
   copy_invoke(std::ref(step_forward)); // stage -> 2
@@ -375,6 +397,7 @@ int main() {
   // simple_capture();
   // mutable_capture();
   // reference_capture();
+  // reference_capture_and_lambda_clone();
   // simple_capture_with_static_var();
   // mixing_capture();
 

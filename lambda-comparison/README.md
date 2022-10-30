@@ -12,29 +12,29 @@ A simple comparison of C-plus-plus' lambda expression and Rust's closure.
 
 - simple_lambda: non-capturing lambda
 
-- passing_lambda_to_fn
+- passing_lambda_to_fn: passing a function pointer
 
-- generic_lambda
+- generic_lambda: using auto type or function template
 
-- simple_capture
+- simple_capture: value (clone) capture
 
-- mutable_capture
+- mutable_capture: value capture with keyword `mutable`. Notice that all variables are now mutable, and those variables who was captured by value turns out to be lambda's internal state (`static` variable effectively identical)
 
 - reference_capture
 
-- mixing_capture
+- mixing_capture: mixing value capture and reference capture
 
-- default_value_capture
+- default_value_capture: `=` identifier
 
-- default_reference_capture
+- default_reference_capture: `&` identifier
 
-- default_mixing_capture
+- default_mixing_capture: `=` or `&` at the first element of capture list
 
-- init_var_capture
+- init_var_capture: variable initialization in the capture list
 
-- copy_lambda
+- copy_lambda: lambda is an object who plays a functor's role, and any clone made on a lambda would clone its internal states as well.
 
-- copy_ref_lambda
+- copy_ref_lambda: an elegant method of passing a lambda's reference by using `std::ref`
 
 ## Rust
 
