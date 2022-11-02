@@ -22,6 +22,8 @@ A simple comparison of C-plus-plus' lambda expression and Rust's closure.
 
 - reference_capture
 
+- ownership_capture
+
 - mixing_capture: mixing value capture and reference capture
 
 - default_value_capture: `=` identifier

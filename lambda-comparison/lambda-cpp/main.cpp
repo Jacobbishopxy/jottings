@@ -12,6 +12,7 @@
 
 #include <functional>
 #include <iostream>
+#include <memory>
 #include <string>
 
 /**
@@ -169,6 +170,22 @@ void simple_capture_with_static_var() {
   }};
 
   shoot();
+  shoot();
+  shoot();
+}
+
+/**
+ * @brief move semantics
+ */
+void ownership_capture() {
+  int quiver{8};
+
+  auto shoot{[q = std::move(quiver)]() mutable {
+    // quiver has been moved
+    --q;
+    std::cout << "Arrows left: " << q << std::endl;
+  }};
+
   shoot();
   shoot();
 }
@@ -399,6 +416,7 @@ int main() {
   // reference_capture();
   // reference_capture_and_lambda_clone();
   // simple_capture_with_static_var();
+  ownership_capture();
   // mixing_capture();
 
   // default_value_capture();
@@ -407,7 +425,7 @@ int main() {
 
   // init_var_capture();
   // copy_lambda();
-  copy_ref_lambda();
+  // copy_ref_lambda();
 
   return 0;
 }
