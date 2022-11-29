@@ -54,7 +54,5 @@
 		"ctime": "cpp",
 		"ratio": "cpp",
 		"variant": "cpp"
-	},
-	"cmake.sourceDirectory": "${workspaceFolder}/lambda-comparison/lambda-cpp",
-	"C_Cpp.errorSquiggles": "enabled"
+	}
 }
