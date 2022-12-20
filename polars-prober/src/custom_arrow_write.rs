@@ -11,12 +11,13 @@
 //!
 //! Goal: custom serializer + custom FallibleStreamingIterator
 
-use arrow2::io::json::write::Serializer as jsonSerializer;
+// use arrow2::io::json::write::Serializer as jsonSerializer;
 use fallible_streaming_iterator::FallibleStreamingIterator;
 // use arrow2::io::ndjson::write::{Serializer as ndjsonSerializer};
 // use arrow2::io::json::write::write;
 use arrow2::error::Error;
 
+#[allow(dead_code)]
 pub fn write<W, I>(writer: &mut W, mut blocks: I) -> Result<(), Error>
 where
     W: std::io::Write,

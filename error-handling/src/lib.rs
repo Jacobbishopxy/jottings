@@ -64,7 +64,7 @@ impl ClusterMap {
 #[allow(dead_code)]
 fn get_cluster_info_pro(path: &str) -> Result<ClusterMap> {
     let config =
-        std::fs::read_to_string(path).with_context(|| format!("Failed to read from {}", path))?;
+        std::fs::read_to_string(path).with_context(|| format!("Failed to read from {path}"))?;
     let map: ClusterMap = from_str(&config)?;
     let map = map.validate()?;
     Ok(map)
