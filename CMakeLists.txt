@@ -9,3 +9,4 @@ find_package(Catch2 REQUIRED)
 
 add_subdirectory(./lambda-comparison/lambda-cpp)
 add_subdirectory(./arrow-cpp)
+add_subdirectory(./fsm/fsm-cpp)
