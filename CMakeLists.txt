@@ -8,4 +8,4 @@ project(Jotting LANGUAGES CXX VERSION 0.0.1)
 find_package(Catch2 REQUIRED)
 
 add_subdirectory(./lambda-comparison/lambda-cpp)
-
+add_subdirectory(./arrow-cpp)
