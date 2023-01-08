@@ -46,9 +46,38 @@ int main(int argc, char const* argv[])
     std::cerr << "m1: " << e.what() << std::endl;
   }
 
+  m1.damage();
+  std::cout << "m1: "
+            << "Machine is broken" << std::endl;
+  m1.fix();
+  std::cout << "m1: "
+            << "Fixed! In stock: " << m1.getStock() << " items" << std::endl;
+
   try
   {
     m2.sell(1);
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "m2: " << e.what() << std::endl;
+  }
+
+  try
+  {
+    m2.fix();
+  }
+  catch (std::exception& e)
+  {
+    std::cerr << "m2: " << e.what() << std::endl;
+  }
+
+  m2.damage();
+  std::cout << "m2: "
+            << "Machine is broken" << std::endl;
+
+  try
+  {
+    m2.refill(10);
   }
   catch (std::exception& e)
   {

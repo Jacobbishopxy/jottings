@@ -14,6 +14,18 @@ void AbstractState::updateStock(Machine& machine, unsigned int quantity)
   machine.stock = quantity;
 }
 
+void AbstractState::damage(Machine& machine)
+{
+  setState(machine, new Broken());
+}
+
+void AbstractState::fix(Machine& machine)
+{
+  setState(machine, machine.stock > 0
+                        ? static_cast<AbstractState*>(new Normal())
+                        : static_cast<AbstractState*>(new SoldOut()));
+}
+
 Normal::~Normal() {}
 
 void Normal::sell(Machine& machine, unsigned int quantity)
@@ -34,6 +46,11 @@ void Normal::refill(Machine& machine, unsigned int quantity)
   updateStock(machine, currStock + quantity);
 }
 
+void Normal::fix(Machine& machine)
+{
+  throw std::runtime_error("If it ain't broke, don't fix it!");
+}
+
 SoldOut::~SoldOut() {}
 
 void SoldOut::sell(Machine& machine, unsigned int quantity)
@@ -45,4 +62,21 @@ void SoldOut::refill(Machine& machine, unsigned int quantity)
 {
   updateStock(machine, quantity);
   setState(machine, new Normal());
+}
+
+void SoldOut::fix(Machine& machine)
+{
+  throw std::runtime_error("If it ain't broke, don't fix it!");
+}
+
+Broken::~Broken() {}
+
+void Broken::sell(Machine& machine, unsigned int quantity)
+{
+  throw std::runtime_error("Machine is broken! Fix it before sell");
+}
+
+void Broken::refill(Machine& machine, unsigned int quantity)
+{
+  throw std::runtime_error("Machine is broken! Fix it before sell");
 }

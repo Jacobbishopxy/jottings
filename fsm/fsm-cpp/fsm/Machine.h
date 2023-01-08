@@ -14,6 +14,9 @@ public:
 
   void sell(unsigned int quantity);
   void refill(unsigned int quantity);
+  void damage();
+  void fix();
+
   unsigned int getStock();
 
 private:

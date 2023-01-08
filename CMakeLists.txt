@@ -7,6 +7,6 @@ project(Jotting LANGUAGES CXX VERSION 0.0.1)
 
 find_package(Catch2 REQUIRED)
 
-add_subdirectory(./lambda-comparison/lambda-cpp)
-add_subdirectory(./arrow-cpp)
-add_subdirectory(./fsm/fsm-cpp)
+add_subdirectory(./lambda-comparison/lambda-cpp lbd)
+add_subdirectory(./arrow-cpp arw)
+add_subdirectory(./fsm/fsm-cpp fsm)
