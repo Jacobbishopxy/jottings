@@ -18,4 +18,4 @@
 
 - [Lambda comparison](./lambda-comparison/README.md)
 
-- [fsm comparison](./fsm/README.md)
+- [FSM comparison](./fsm/README.md)

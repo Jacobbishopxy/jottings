@@ -11,6 +11,5 @@ target/
 
 .metals
 
-/.vscode/*
-!/.vscode/settings.json
+/.vscode
 build
