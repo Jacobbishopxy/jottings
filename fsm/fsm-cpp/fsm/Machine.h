@@ -1,9 +1,17 @@
 #pragma once
 
-#include "MachineStates.h"
+#include "States.h"
 
-class AbstractState;
+class AbstractState; // fwd dcl
 
+/**
+ * The actual class will be instantiated, which used for handling real event calling,
+ * recording data (stock), and maintaining states switching.
+ *
+ * Notice that `AbstractState` is a friend class of a `Machine`, and this is required by
+ * the event functions (`sell`/`refill`/`damage`/`fix`) to actually do the state switching
+ * (see the implementation).
+ */
 class Machine
 {
   friend class AbstractState;

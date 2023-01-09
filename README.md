@@ -17,3 +17,5 @@
 - [Sqlx Arrow2](./sqlx-arrow2/README.md)
 
 - [Lambda comparison](./lambda-comparison/README.md)
+
+- [fsm comparison](./fsm/README.md)

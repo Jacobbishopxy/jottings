@@ -2,7 +2,7 @@
 add_executable(
     fsm
     fsm/Machine.cpp
-    fsm/MachineStates.cpp
+    fsm/States.cpp
     fsm/main.cpp
 )
 

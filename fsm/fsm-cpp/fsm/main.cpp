@@ -1,9 +1,16 @@
 #include "Machine.h"
-#include "MachineStates.h"
+#include "States.h"
 
 #include <iostream>
 #include <stdexcept>
 
+/**
+ * The main idea of a FSM's implementation is consisted of a `Machine`,
+ * which holds data, state and event functions,
+ * and be a friend of `AbstractStates` in order to call the real event functions;
+ * an abstract class `AbstractStates`, which used for concrete states to be derived from;
+ * several concrete states who implement actual data and state changing.
+ */
 int main(int argc, char const* argv[])
 {
   Machine m1(10), m2(0);

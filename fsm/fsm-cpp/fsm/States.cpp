@@ -1,7 +1,12 @@
-#include "MachineStates.h"
+#include "States.h"
+
+/////////////////////////////////////////////////////////////////////////////
+// AbstractState
+/////////////////////////////////////////////////////////////////////////////
 
 AbstractState::~AbstractState() {}
 
+// Do not forget delete original state!
 void AbstractState::setState(Machine& machine, AbstractState* state)
 {
   AbstractState* aux = machine.state;
@@ -14,17 +19,23 @@ void AbstractState::updateStock(Machine& machine, unsigned int quantity)
   machine.stock = quantity;
 }
 
+// default implementation
 void AbstractState::damage(Machine& machine)
 {
   setState(machine, new Broken());
 }
 
+// default implementation
 void AbstractState::fix(Machine& machine)
 {
   setState(machine, machine.stock > 0
                         ? static_cast<AbstractState*>(new Normal())
                         : static_cast<AbstractState*>(new SoldOut()));
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// Normal
+/////////////////////////////////////////////////////////////////////////////
 
 Normal::~Normal() {}
 
@@ -51,6 +62,10 @@ void Normal::fix(Machine& machine)
   throw std::runtime_error("If it ain't broke, don't fix it!");
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// SoldOut
+/////////////////////////////////////////////////////////////////////////////
+
 SoldOut::~SoldOut() {}
 
 void SoldOut::sell(Machine& machine, unsigned int quantity)
@@ -68,6 +83,10 @@ void SoldOut::fix(Machine& machine)
 {
   throw std::runtime_error("If it ain't broke, don't fix it!");
 }
+
+/////////////////////////////////////////////////////////////////////////////
+// Broken
+/////////////////////////////////////////////////////////////////////////////
 
 Broken::~Broken() {}
 

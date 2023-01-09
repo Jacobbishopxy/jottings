@@ -1,5 +1,5 @@
 #include "Machine.h"
-#include "MachineStates.h"
+#include "States.h"
 
 Machine::Machine(unsigned int _stock) : stock{_stock}
 {
@@ -20,9 +20,15 @@ void Machine::refill(unsigned int quantity)
   state->refill(*this, quantity);
 }
 
-void Machine::damage() { state->damage(*this); }
+void Machine::damage()
+{
+  state->damage(*this);
+}
 
-void Machine::fix() { state->fix(*this); }
+void Machine::fix()
+{
+  state->fix(*this);
+}
 
 unsigned int Machine::getStock()
 {
