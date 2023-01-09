@@ -12,7 +12,7 @@ add_executable(
     fsm17/main.cpp
 )
 
-# add_executable(
-#     fsm17ehn
-
-# )
+add_executable(
+    fsm17ehn
+    fsm17ehn/main.cpp
+)
