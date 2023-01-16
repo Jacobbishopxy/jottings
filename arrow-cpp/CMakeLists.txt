@@ -1,4 +1,12 @@
 
-add_executable(arrowcpp dev.cpp)
+add_executable(
+    arrowcpp-starter
+    starter.cpp
+)
 
-target_link_libraries(arrowcpp PRIVATE Catch2::Catch2WithMain)
+find_package(Arrow REQUIRED)
+
+target_link_libraries(
+    arrowcpp-starter PRIVATE
+    Arrow::arrow_shared
+)
