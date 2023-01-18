@@ -23,3 +23,13 @@ target_link_libraries(
     Parquet::parquet_shared
 )
 
+# Compute
+add_executable(
+    arrowcpp-compute
+    compute.cpp
+)
+target_link_libraries(
+    arrowcpp-compute PRIVATE
+    Arrow::arrow_shared
+)
+
