@@ -10,6 +10,10 @@
 
 arrow::Status RunMain()
 {
+  // ================================================================================================
+  // A. 构建 Array
+  // ================================================================================================
+  //
   // Builders 是使用已存在的值来创建 Arrow Array 的主要方式
   arrow::Int8Builder int8builder;
   int8_t days_raw[5] = {1, 12, 17, 23, 28};
@@ -39,7 +43,9 @@ arrow::Status RunMain()
   std::shared_ptr<arrow::Array> years;
   ARROW_ASSIGN_OR_RAISE(years, int16builder.Finish());
 
-  // 构建 RecordBatch
+  // ================================================================================================
+  // B. 构建 RecordBatch
+  // ================================================================================================
   //
   // 1. 定义一个 Schema
   // 2. 加载 Schema 以及 Arrays 至构造函数
@@ -61,7 +67,9 @@ arrow::Status RunMain()
 
   std::cout << rbatch->ToString() << std::endl;
 
-  // 构建 ChunkedArray
+  // ================================================================================================
+  // C. 构建 ChunkedArray
+  // ================================================================================================
   //
   // 为了在 concat 时避免数据拷贝，或者是并行处理，或者是每个 chunk 皆有缓存，或者是超出了 2,147,483,647 行的限制
   // 可以构建有若干子 arrays 组成的数组
@@ -80,6 +88,10 @@ arrow::Status RunMain()
   std::shared_ptr<arrow::Array> years2;
   ARROW_ASSIGN_OR_RAISE(years2, int16builder.Finish());
 
+  // ================================================================================================
+  // D. 构建 ArrayVector
+  // ================================================================================================
+  //
   // 为了在 ChunkedArray 的构造函数中支持任意数量的 Arrays，Arrow 提供了 `ArrayVector`。
   // 即 Arrays 的 vector，我们将使用它来准备一个 `ChunkedArray`：
   // `ChunkedArray` 允许一个 arrays 的数组，它们互相并不连续。
@@ -93,7 +105,9 @@ arrow::Status RunMain()
   arrow::ArrayVector year_vecs{years, years2};
   std::shared_ptr<arrow::ChunkedArray> year_chunks = std::make_shared<arrow::ChunkedArray>(year_vecs);
 
-  // 构建 Table
+  // ================================================================================================
+  // E. 构建 Table
+  // ================================================================================================
   //
   // 对于 `ChunkedArray` 而言最有实际用途的是创建一个之前提到过的 Tables。类似于一个 `RecordBatch`，一个 `Table` 存储表格式的数据。
   // 然而 `Table` 并不保证连续性，因为它是由 `ChunkedArray` 构成的。
