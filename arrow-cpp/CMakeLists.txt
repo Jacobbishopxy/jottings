@@ -1,5 +1,6 @@
 
 find_package(Arrow REQUIRED)
+find_package(ArrowDataset REQUIRED)
 find_package(Parquet REQUIRED)
 
 # Starter
@@ -31,5 +32,17 @@ add_executable(
 target_link_libraries(
     arrowcpp-compute PRIVATE
     Arrow::arrow_shared
+)
+
+# Datasets
+add_executable(
+    arrowcpp-datasets
+    datasets.cpp
+)
+target_link_libraries(
+    arrowcpp-datasets PRIVATE
+    Arrow::arrow_shared
+    ArrowDataset::arrow_dataset_shared
+    Parquet::parquet_shared
 )
 
