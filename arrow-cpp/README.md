@@ -1,6 +1,6 @@
 # Arrow C++
 
-A study material of Apache Arrow's official tutorial.
+A study material of Apache Arrow's official tutorial. Under the `/tutorial` folder are examples come from Arrow's official, while `/demo` are practical cases from my own.
 
 - [Installation](https://arrow.apache.org/install/)
 

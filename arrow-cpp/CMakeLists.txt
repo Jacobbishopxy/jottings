@@ -6,7 +6,7 @@ find_package(Parquet REQUIRED)
 # Starter
 add_executable(
     arrowcpp-starter
-    starter.cpp
+    tutorial/starter.cpp
 )
 target_link_libraries(
     arrowcpp-starter PRIVATE
@@ -16,7 +16,7 @@ target_link_libraries(
 # File IO
 add_executable(
     arrowcpp-fileio
-    file_io.cpp
+    tutorial/file_io.cpp
 )
 target_link_libraries(
     arrowcpp-fileio PRIVATE
@@ -27,7 +27,7 @@ target_link_libraries(
 # Compute
 add_executable(
     arrowcpp-compute
-    compute.cpp
+    tutorial/compute.cpp
 )
 target_link_libraries(
     arrowcpp-compute PRIVATE
@@ -37,7 +37,7 @@ target_link_libraries(
 # Datasets
 add_executable(
     arrowcpp-datasets
-    datasets.cpp
+    tutorial/datasets.cpp
 )
 target_link_libraries(
     arrowcpp-datasets PRIVATE
