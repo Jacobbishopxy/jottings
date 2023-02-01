@@ -3,6 +3,10 @@ find_package(Arrow REQUIRED)
 find_package(ArrowDataset REQUIRED)
 find_package(Parquet REQUIRED)
 
+# ================================================================================================
+# Tutorial
+# ================================================================================================
+
 # Starter
 add_executable(
     arrowcpp-starter
@@ -46,3 +50,18 @@ target_link_libraries(
     Parquet::parquet_shared
 )
 
+# ================================================================================================
+# Demo
+# ================================================================================================
+
+add_executable(
+    arrowcpp-oad
+    demo/OrderAD.cpp
+    demo/lb_pqt.cpp
+)
+target_link_libraries(
+    arrowcpp-oad PRIVATE
+    Arrow::arrow_shared
+    ArrowDataset::arrow_dataset_shared
+    Parquet::parquet_shared
+)
