@@ -25,6 +25,7 @@ struct OrderAD
   OrderIdSet order_A;
   OrderIdSet order_D;
 
+  OrderAD(){};
   OrderAD(OrderIdSet a, OrderIdSet d) : order_A{a}, order_D{d} {};
 
   void insert_A(OrderIdType oa);
