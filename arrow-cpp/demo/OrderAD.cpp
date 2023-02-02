@@ -50,3 +50,20 @@ const bool OrderAD::is_empty() const
 {
   return order_A.empty() && order_D.empty();
 }
+
+std::ostream& operator<<(std::ostream& os, const OrderAD& o)
+{
+  os << '[';
+
+  for (auto& oa : o.order_A)
+    os << oa << ",";
+
+  os << "|";
+
+  for (auto& od : o.order_D)
+    os << od << ",";
+
+  os << "]";
+
+  return os;
+}

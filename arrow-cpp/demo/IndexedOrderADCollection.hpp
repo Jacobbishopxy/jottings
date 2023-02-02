@@ -21,6 +21,18 @@ using IndexedOrderAD = std::array<OrderAD, N>; // N 分钟
 template <unsigned int N>
 using IndexedOrderData = std::vector<IndexedOrderAD<N>>;
 
+// fwd dcl
+template <unsigned int N>
+struct IndexedOrderADCollection;
+
+// fwd dcl
+template <unsigned int N>
+std::ostream& operator<<(std::ostream& os, const IndexedOrderADCollection<N>& o);
+
+// ================================================================================================
+// IndexedOrderADCollection
+// ================================================================================================
+
 template <unsigned int N>
 struct IndexedOrderADCollection
 {
@@ -140,5 +152,20 @@ struct IndexedOrderADCollection
     return m_data.size();
   }
 };
+
+template <unsigned int N>
+std::ostream& operator<<(std::ostream& os, const IndexedOrderADCollection<N>& o)
+{
+  for (auto& si : o.m_data)
+  {
+    for (auto& mi_oad : si)
+    {
+      os << "{" << mi_oad << "}";
+    }
+    os << std::endl;
+  }
+
+  return os;
+}
 
 #endif //!__INDEXEDORDERADCOLLECTION__H__

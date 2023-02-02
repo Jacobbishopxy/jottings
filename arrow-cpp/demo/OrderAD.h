@@ -8,6 +8,7 @@
 #ifndef __ORDERAD__H__
 #define __ORDERAD__H__
 
+#include <iostream>
 #include <map>
 #include <set>
 #include <string>
@@ -40,6 +41,8 @@ struct OrderAD
 
   const std::tuple<size_t, size_t> size() const; // a_size, d_size
   const bool is_empty() const;
+
+  friend std::ostream& operator<<(std::ostream& os, const OrderAD& o);
 };
 
 #endif //!__ORDERAD__H__
