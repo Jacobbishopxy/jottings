@@ -9,6 +9,7 @@ use nom::character::complete::{alpha0, alpha1, alphanumeric1, space0, space1};
 use nom::combinator::recognize;
 use nom::sequence::{delimited, pair, separated_pair, tuple};
 use nom::IResult;
+use once_cell::sync::Lazy;
 
 // error
 #[allow(dead_code)]
@@ -59,68 +60,63 @@ pub enum ValueType {
     String,
 }
 
-lazy_static! {
-    // str -> mysql data types
-    pub static ref MYSQL_TMAP: HashMap<&'static str, ValueType> = {
-        HashMap::from([
-            ("TINYINT(1)", ValueType::Bool),
-            ("BOOLEAN", ValueType::Bool),
-            ("TINYINT UNSIGNED", ValueType::U8),
-            ("SMALLINT UNSIGNED", ValueType::U16),
-            ("INT UNSIGNED", ValueType::U32),
-            ("BIGINT UNSIGNED", ValueType::U64),
-            ("TINYINT", ValueType::I8),
-            ("SMALLINT", ValueType::I16),
-            ("INT", ValueType::I32),
-            ("BIGINT", ValueType::I64),
-            ("FLOAT", ValueType::F32),
-            ("DOUBLE", ValueType::F64),
-            ("VARCHAR", ValueType::String),
-            ("CHAR", ValueType::String),
-            ("TEXT", ValueType::String),
-        ])
-    };
+static MYSQL_TMAP: Lazy<HashMap<&'static str, ValueType>> = Lazy::new(|| {
+    HashMap::from([
+        ("TINYINT(1)", ValueType::Bool),
+        ("BOOLEAN", ValueType::Bool),
+        ("TINYINT UNSIGNED", ValueType::U8),
+        ("SMALLINT UNSIGNED", ValueType::U16),
+        ("INT UNSIGNED", ValueType::U32),
+        ("BIGINT UNSIGNED", ValueType::U64),
+        ("TINYINT", ValueType::I8),
+        ("SMALLINT", ValueType::I16),
+        ("INT", ValueType::I32),
+        ("BIGINT", ValueType::I64),
+        ("FLOAT", ValueType::F32),
+        ("DOUBLE", ValueType::F64),
+        ("VARCHAR", ValueType::String),
+        ("CHAR", ValueType::String),
+        ("TEXT", ValueType::String),
+    ])
+});
 
-    // str -> postgres data types
-    pub static ref POSTGRES_TMAP: HashMap<&'static str, ValueType> = {
-        HashMap::from([
-            ("BOOL", ValueType::Bool),
-            ("CHAR", ValueType::I8),
-            ("TINYINT", ValueType::I8),
-            ("SMALLINT", ValueType::I16),
-            ("SMALLSERIAL", ValueType::I16),
-            ("INT2", ValueType::I16),
-            ("INT", ValueType::I32),
-            ("SERIAL", ValueType::I32),
-            ("INT4", ValueType::I32),
-            ("BIGINT", ValueType::I64),
-            ("BIGSERIAL", ValueType::I64),
-            ("INT8", ValueType::I64),
-            ("REAL", ValueType::F32),
-            ("FLOAT4", ValueType::F32),
-            ("DOUBLE PRECISION", ValueType::F64),
-            ("FLOAT8", ValueType::F64),
-            ("VARCHAR", ValueType::String),
-            ("CHAR(N)", ValueType::String),
-            ("TEXT", ValueType::String),
-            ("NAME", ValueType::String),
-        ])
-    };
+static POSTGRES_TMAP: Lazy<HashMap<&'static str, ValueType>> = Lazy::new(|| {
+    HashMap::from([
+        ("BOOL", ValueType::Bool),
+        ("CHAR", ValueType::I8),
+        ("TINYINT", ValueType::I8),
+        ("SMALLINT", ValueType::I16),
+        ("SMALLSERIAL", ValueType::I16),
+        ("INT2", ValueType::I16),
+        ("INT", ValueType::I32),
+        ("SERIAL", ValueType::I32),
+        ("INT4", ValueType::I32),
+        ("BIGINT", ValueType::I64),
+        ("BIGSERIAL", ValueType::I64),
+        ("INT8", ValueType::I64),
+        ("REAL", ValueType::F32),
+        ("FLOAT4", ValueType::F32),
+        ("DOUBLE PRECISION", ValueType::F64),
+        ("FLOAT8", ValueType::F64),
+        ("VARCHAR", ValueType::String),
+        ("CHAR(N)", ValueType::String),
+        ("TEXT", ValueType::String),
+        ("NAME", ValueType::String),
+    ])
+});
 
-    // str -> sqlite data types
-    pub static ref SQLITE_TMAP: HashMap<&'static str, ValueType> = {
-        HashMap::from([
-            ("BOOLEAN", ValueType::Bool),
-            ("INTEGER", ValueType::I32),
-            ("BIGINT", ValueType::I64),
-            ("INT8", ValueType::I64),
-            ("REAL", ValueType::F64),
-            ("VARCHAR", ValueType::String),
-            ("CHAR(N)", ValueType::String),
-            ("TEXT", ValueType::String),
-        ])
-    };
-}
+static SQLITE_TMAP: Lazy<HashMap<&'static str, ValueType>> = Lazy::new(|| {
+    HashMap::from([
+        ("BOOLEAN", ValueType::Bool),
+        ("INTEGER", ValueType::I32),
+        ("BIGINT", ValueType::I64),
+        ("INT8", ValueType::I64),
+        ("REAL", ValueType::F64),
+        ("VARCHAR", ValueType::String),
+        ("CHAR(N)", ValueType::String),
+        ("TEXT", ValueType::String),
+    ])
+});
 
 #[test]
 fn test_get_tmap() {
