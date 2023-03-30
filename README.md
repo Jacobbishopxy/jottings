@@ -21,3 +21,5 @@
 - [FSM comparison](./fsm/README.md)
 
 - [Arrow C++](./arrow-cpp/README.md)
+
+- [Futures rs](./fut-rs/README.md)
