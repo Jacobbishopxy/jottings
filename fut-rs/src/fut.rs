@@ -82,11 +82,6 @@ enum State {
 }
 
 #[allow(dead_code)]
-struct Consumer {
-    rx: tokio::sync::mpsc::Receiver<i32>,
-}
-
-#[allow(dead_code)]
 async fn gen_state(event: i32) -> State {
     match event {
         (0..=10) => State::Idle,
@@ -96,6 +91,12 @@ async fn gen_state(event: i32) -> State {
         100 => State::Restarting,
         _ => State::Stopped,
     }
+}
+
+// tokio mpsc receiver
+#[allow(dead_code)]
+struct Consumer {
+    rx: tokio::sync::mpsc::Receiver<i32>,
 }
 
 impl Consumer {
@@ -137,6 +138,61 @@ async fn test_consumer() {
             let num = rand::thread_rng().gen_range(0..=101);
             tx2.send(num).await.expect("yes");
             tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+        }
+    });
+
+    while let Some(s) = stream.next().await {
+        println!("State: {:?}", s);
+    }
+}
+
+// futures mpsc receiver
+#[allow(dead_code)]
+struct Consumer2 {
+    rx: futures::channel::mpsc::Receiver<i32>,
+}
+
+impl Consumer2 {
+    #[allow(dead_code)]
+    fn new(rx: futures::channel::mpsc::Receiver<i32>) -> Self {
+        Self { rx }
+    }
+
+    #[allow(dead_code)]
+    fn as_stream(&mut self) -> impl Stream<Item = State> + '_ {
+        futures::stream::unfold(self, |s| async {
+            if let Some(e) = s.rx.next().await {
+                dbg!(e);
+                Some((gen_state(e).await, s))
+            } else {
+                dbg!("None");
+                None
+            }
+        })
+    }
+}
+
+#[tokio::test]
+async fn test_consumer2() {
+    let (mut tx, rx) = futures::channel::mpsc::channel::<i32>(10);
+    let mut tx2 = tx.clone();
+
+    let mut consumer = Consumer2::new(rx);
+    let mut stream = consumer.as_stream().boxed();
+
+    tokio::spawn(async move {
+        loop {
+            let num = rand::thread_rng().gen_range(0..=101);
+            tx.try_send(num).expect("yes");
+            tokio::time::sleep(tokio::time::Duration::from_secs(2)).await;
+        }
+    });
+
+    tokio::spawn(async move {
+        loop {
+            let num = rand::thread_rng().gen_range(0..=101);
+            tx2.try_send(num).expect("yes");
+            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
         }
     });
 

@@ -1,11 +1,12 @@
 [package]
 name = "fut-rs"
 version = "0.1.0"
+authors = ["JacobX <jacobbishopxy@gmail.com>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+anyhow = "1"
 futures = "0"
 rand = "0"
 tokio = { version = "1", features = ["full"] }
