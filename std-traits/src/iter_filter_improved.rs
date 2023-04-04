@@ -18,6 +18,7 @@ struct TaskUnit {
 }
 
 impl TaskUnit {
+    #[allow(dead_code)]
     fn new(di: &str, dri: &str, ti: &str) -> Self {
         Self {
             dag_id: di.to_owned(),
@@ -27,6 +28,7 @@ impl TaskUnit {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct ATaskUnitRef<'a> {
     dag_id: &'a str,
@@ -70,6 +72,7 @@ fn test_from() {
     println!("{:?}", aturrr);
 }
 
+#[allow(dead_code)]
 fn filter<'s, I>(data: I, di: &'s str) -> Vec<I::Item>
 where
     I: IntoIterator,

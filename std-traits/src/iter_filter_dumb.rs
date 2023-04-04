@@ -11,6 +11,7 @@ struct TaskUnit {
 }
 
 impl TaskUnit {
+    #[allow(dead_code)]
     fn new(di: &str, dri: &str, ti: &str) -> Self {
         Self {
             dag_id: di.to_owned(),
@@ -31,6 +32,7 @@ struct TaskInstance {
 }
 
 impl TaskInstance {
+    #[allow(dead_code)]
     fn new(di: &str, dri: &str, ti: &str) -> Self {
         Self {
             dag_id: di.to_owned(),
@@ -43,6 +45,7 @@ impl TaskInstance {
     }
 }
 
+#[allow(dead_code)]
 struct ATaskUnitRef<'a> {
     dag_id: &'a str,
     dag_run_id: &'a str,
@@ -50,6 +53,7 @@ struct ATaskUnitRef<'a> {
 }
 
 impl<'a> ATaskUnitRef<'a> {
+    #[allow(dead_code)]
     fn compare(&self, di: &str) -> bool {
         self.dag_id == di
     }
@@ -85,6 +89,17 @@ impl<'a> From<&'a TaskInstance> for ATaskUnitRef<'a> {
     }
 }
 
+impl<'a> From<&'a &TaskInstance> for ATaskUnitRef<'a> {
+    fn from(value: &'a &TaskInstance) -> Self {
+        Self {
+            dag_id: &value.dag_id,
+            dag_run_id: &value.dag_run_id,
+            task_id: &value.task_id,
+        }
+    }
+}
+
+#[allow(dead_code)]
 fn filter<'s, I>(data: I, di: &'s str) -> Vec<I::Item>
 where
     I: IntoIterator,
@@ -123,5 +138,13 @@ fn test_foo() {
     ];
 
     let f_foos = filter(foos, "di1");
+    println!("{:?}", f_foos);
+
+    let foos = vec![
+        TaskInstance::new("di1", "dri", "ti"),
+        TaskInstance::new("di2", "dri", "ti"),
+    ];
+
+    let f_foos = filter(foos.as_slice(), "di1");
     println!("{:?}", f_foos);
 }
