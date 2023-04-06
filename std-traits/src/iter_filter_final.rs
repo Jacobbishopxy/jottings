@@ -139,13 +139,7 @@ where
 {
     fn from(value: &'a T) -> Self {
         let rf = Borrow::<O>::borrow(value);
-
-        ATaskUnitRef {
-            dag_id: rf.dag_id(),
-            dag_run_id: rf.dag_run_id(),
-            task_id: rf.task_id(),
-            _o: PhantomData,
-        }
+        rf.to_tur()
     }
 }
 
@@ -162,6 +156,7 @@ fn test_ref_from_generic_type() {
 // filter
 // ================================================================================================
 
+#[allow(dead_code)]
 fn filter<'s, O, I>(data: I, di: &'s str) -> Vec<I::Item>
 where
     I: IntoIterator,
