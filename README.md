@@ -25,3 +25,17 @@
 - [Futures rs](./fut-rs/README.md)
 
 - [Py command](./pycmd/README.md)
+
+## Notes
+
+- Setting `-std=c++20` in VSCode config file `.vscode/c_cpp_properties.json`:
+
+    ```json
+    ...
+    "cStandard": "c17",
+    "cppStandard": "c++20",
+    "compilerArgs": [
+        "-std=c++20"
+    ],
+    ...
+    ```
