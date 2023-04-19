@@ -8,10 +8,10 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::path::Path;
 
-use anyhow::Result;
+use anyhow::{Error, Result};
 use futures::channel::mpsc::{channel, Receiver};
 use futures::{SinkExt, StreamExt};
-use notify::{Config, Event, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 
 // ================================================================================================
 // Type
@@ -90,24 +90,39 @@ async fn async_watch<P: AsRef<Path>>(path: P, recorder: &mut Recorder) -> Result
                 let path = event
                     .paths
                     .first()
-                    .ok_or(anyhow::Error::msg("Empty path!"))?
+                    .ok_or(Error::msg("Empty path!"))?
                     .as_path();
 
                 let filename = path
                     .file_name()
-                    .ok_or(anyhow::Error::msg("Not a filename!"))?
+                    .ok_or(Error::msg("Not a filename!"))?
                     .to_str()
-                    .ok_or(anyhow::Error::msg("Filename to_str failed!"))?;
+                    .ok_or(Error::msg("Filename to_str failed!"))?;
 
                 // filter from watch list
                 if let Some(p) = path.to_str().filter(|_| FILE_LIST.contains(&filename)) {
-                    // only handle modified file
-                    if let notify::EventKind::Modify(_) = &event.kind {
-                        // get current position
-                        let cur_pos = recorder.get(p).copied();
-
-                        let new_pos = file_read(p, cur_pos)?;
-                        recorder.insert(p.to_string(), new_pos);
+                    match &event.kind {
+                        EventKind::Access(_) => {
+                            // println!("file {} has been accessing", p);
+                        }
+                        EventKind::Create(_) => {
+                            println!("new file {} has been created", p);
+                        }
+                        EventKind::Modify(_) => {
+                            // get current position
+                            let cur_pos = recorder.get(p).copied();
+                            // read file and print
+                            let new_pos = file_read(p, cur_pos)?;
+                            // update position
+                            recorder.insert(p.to_string(), new_pos);
+                        }
+                        EventKind::Remove(_) => {
+                            recorder.remove(p);
+                            println!("file {} has beed removed", p);
+                        }
+                        _ => {
+                            // ignore
+                        }
                     }
                 }
             }
