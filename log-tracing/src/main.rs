@@ -86,7 +86,6 @@ async fn async_watch<P: AsRef<Path>>(path: P, recorder: &mut Recorder) -> Result
     while let Some(res) = rx.next().await {
         match res {
             Ok(event) => {
-                // println!("changed: {:?}", event);
                 let path = event
                     .paths
                     .first()
