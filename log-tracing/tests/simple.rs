@@ -40,9 +40,7 @@ async fn async_watch<P: AsRef<Path>>(path: P) -> Result<()> {
 
     while let Some(res) = rx.next().await {
         match res {
-            Ok(event) => {
-                println!("changed: {:?}", event)
-            }
+            Ok(event) => println!("changed: {:?}", event),
             Err(e) => println!("watch error: {:?}", e),
         }
     }
