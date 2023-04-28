@@ -28,4 +28,6 @@
 
 - [Log tracing](./log-tracing/README.md)
 
+- [Arrow IPC (C++ & Rust & Py)](./arrow-ipc/README.md)
+
 Extra [notes](./notes.md)
