@@ -4,6 +4,7 @@
 //! brief:
 
 use std::fs::File;
+use std::net::TcpStream;
 
 use arrow2::array::Array;
 use arrow2::chunk::Chunk;
@@ -22,4 +23,19 @@ pub fn write_batches(path: &str, schema: Schema, chunks: &[Chunk<Box<dyn Array>>
         writer.write(chunk, None)?;
     }
     writer.finish()
+}
+
+// Streaming write
+pub fn write_stream(addr: &str, schema: Schema, chunks: &[Chunk<Box<dyn Array>>]) -> Result<()> {
+    let mut writer = TcpStream::connect(addr)?;
+    let mut stream =
+        write::StreamWriter::new(&mut writer, write::WriteOptions { compression: None });
+
+    stream.start(&schema, None)?;
+    for chk in chunks.iter() {
+        stream.write(chk, None)?;
+    }
+    stream.finish()?;
+
+    Ok(())
 }

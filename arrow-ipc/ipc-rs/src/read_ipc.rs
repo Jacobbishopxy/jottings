@@ -4,6 +4,8 @@
 //! brief:
 
 use std::fs::File;
+use std::net::TcpStream;
+use std::time::Duration;
 
 use arrow2::array::Array;
 use arrow2::chunk::Chunk;
@@ -55,4 +57,28 @@ pub fn read_batch(path: &str) -> Result<(Schema, Chunk<Box<dyn Array>>)> {
     )?;
 
     Ok((schema, chunk))
+}
+
+// Streaming read
+pub fn read_stream(addr: &str) -> Result<()> {
+    let mut reader = TcpStream::connect(addr)?;
+    let metadata = read::read_stream_metadata(&mut reader)?;
+    let mut stream = read::StreamReader::new(&mut reader, metadata, None);
+
+    let mut idx = 0;
+    loop {
+        match stream.next() {
+            Some(x) => match x {
+                Ok(read::StreamState::Some(b)) => {
+                    idx += 1;
+                    println!("batch: {:?}\n {:?}", idx, b);
+                }
+                Ok(read::StreamState::Waiting) => std::thread::sleep(Duration::from_millis(2000)),
+                Err(e) => println!("{:?} ({})", e, idx),
+            },
+            None => break,
+        }
+    }
+
+    Ok(())
 }
