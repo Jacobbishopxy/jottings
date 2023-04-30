@@ -27,3 +27,21 @@ target_link_libraries(
     ioipc
     Arrow::arrow_shared
 )
+
+add_executable(
+    sync-tcp-dt-server
+    sync_tcp_daytime_server.cpp
+)
+target_link_libraries(
+    sync-tcp-dt-server PRIVATE
+    asio
+)
+
+add_executable(
+    sync-tcp-dt-client
+    sync_tcp_daytime_client.cpp
+)
+target_link_libraries(
+    sync-tcp-dt-client PRIVATE
+    asio
+)

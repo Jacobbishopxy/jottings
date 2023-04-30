@@ -25,7 +25,7 @@ CPMAddPackage("gh:catchorg/Catch2@3.2.1")
 
 # asio
 # https://github.com/cpm-cmake/CPM.cmake/blob/master/examples/asio-standalone/CMakeLists.txt
-CPMAddPackage("gh:chriskohlhoff/asio#asio-1-18-1@1.18.1")
+CPMAddPackage("gh:chriskohlhoff/asio#asio-1-28-0@1.28.0")
 
 if(asio_ADDED)
   add_library(asio INTERFACE)
