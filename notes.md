@@ -1,5 +1,7 @@
 # Notes
 
+## Cpp
+
 - Setting `-std=c++20` in VSCode config file `.vscode/c_cpp_properties.json`:
 
     ```json
@@ -31,3 +33,10 @@
     ]
     ...
     ```
+
+- Package manager:
+
+```sh
+mkdir -p cmake
+wget -O cmake/CPM.cmake https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/get_cpm.cmake
+```
