@@ -8,8 +8,6 @@
 #include <arrow/api.h>
 #include <arrow/io/api.h>
 #include <arrow/ipc/api.h>
-#include <iostream>
 #include <string>
-#include <vector>
 
-arrow::Status write_ipc(std::string filename, std::shared_ptr<arrow::Table> table);
+arrow::Status write_ipc_file(std::string filename, std::shared_ptr<arrow::Table> table);

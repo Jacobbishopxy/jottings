@@ -11,7 +11,7 @@
 //
 // ================================================================================================
 
-arrow::Status write_ipc(std::string filename, std::shared_ptr<arrow::Table> table)
+arrow::Status write_ipc_file(std::string filename, std::shared_ptr<arrow::Table> table)
 {
   ARROW_ASSIGN_OR_RAISE(auto outfile, arrow::io::FileOutputStream::Open(filename));
   ARROW_ASSIGN_OR_RAISE(auto writer, arrow::ipc::MakeFileWriter(outfile, table->schema()));
