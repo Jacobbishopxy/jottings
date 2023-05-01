@@ -5,11 +5,12 @@
 
 add_library(
     ioipc
-    write_ipc.cpp
-    read_ipc.cpp
+    ipc_write.cpp
+    ipc_read.cpp
+    ipc_utils.cpp
 )
 target_link_libraries(
-    ioipc  PRIVATE
+    ioipc  PUBLIC
     Arrow::arrow_shared
     asio
 )
@@ -26,36 +27,35 @@ add_executable(
 target_link_libraries(
     ipc_file PRIVATE
     ioipc
-    Arrow::arrow_shared
 )
 
-# Sync TCP server
+# TCP case #1: Sync TCP server
 add_executable(
-    sync-tcp-dt-server
-    sync_tcp_daytime_server.cpp
+    tcp-dt-server-sync
+    tcp_daytime_server_sync.cpp
 )
 target_link_libraries(
-    sync-tcp-dt-server PRIVATE
+    tcp-dt-server-sync PRIVATE
     asio
 )
 
-# Sync TCP client
+# TCP case #2: Sync TCP client
 add_executable(
-    sync-tcp-dt-client
-    sync_tcp_daytime_client.cpp
+    tcp-dt-client-sync
+    tcp_daytime_client_sync.cpp
 )
 target_link_libraries(
-    sync-tcp-dt-client PRIVATE
+    tcp-dt-client-sync PRIVATE
     asio
 )
 
-# Async TCP server
+# TCP case #3: Async TCP server
 add_executable(
-    async-tcp-dt-server
-    async_tcp_daytime_server.cpp
+    tcp-dt-server-async
+    tcp_daytime_server_async.cpp
 )
 target_link_libraries(
-    async-tcp-dt-server PRIVATE
+    tcp-dt-server-async PRIVATE
     asio
 )
 
@@ -66,8 +66,7 @@ add_executable(
 )
 target_link_libraries(
     ipc_stream_server
-    Arrow::arrow_shared
-    asio
+    ioipc
 )
 
 # IPC stream client
@@ -77,6 +76,5 @@ add_executable(
 )
 target_link_libraries(
     ipc_stream_client
-    Arrow::arrow_shared
-    asio
+    ioipc
 )

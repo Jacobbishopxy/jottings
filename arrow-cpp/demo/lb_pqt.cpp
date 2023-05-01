@@ -229,7 +229,7 @@ arrow::Result<std::vector<PqtSchema>> deconstruct_table(std::shared_ptr<arrow::T
     int mi = mi_arr->Value(i);
 
     // order_A
-    // 注意：const int64_t* 与上述偏移量一致å
+    // 注意：const int64_t* 与上述偏移量一致
     const int64_t* oa_first = oa_ptr + order_A_arr->value_offset(i);
     const int64_t* oa_last = oa_ptr + order_A_arr->value_offset(i + 1);
     std::vector<int> oa(oa_first, oa_last);
