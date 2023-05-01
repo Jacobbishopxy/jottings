@@ -45,3 +45,12 @@ target_link_libraries(
     sync-tcp-dt-client PRIVATE
     asio
 )
+
+add_executable(
+    async-tcp-dt-server
+    async_tcp_daytime_server.cpp
+)
+target_link_libraries(
+    async-tcp-dt-server PRIVATE
+    asio
+)
