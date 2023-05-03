@@ -7,7 +7,6 @@
 
 #include <asio.hpp>
 #include <iostream>
-#include <sys/socket.h>
 
 #include "ipc_utils.h"
 #include "ipc_write.h"
@@ -15,14 +14,11 @@
 using asio::ip::tcp;
 
 constexpr uint16_t port = 56565;
-constexpr char host[] = "127.0.0.1";
 
 int main(int argc, char** argv)
 {
-  struct sockaddr_in addr;
-  int sock = socket(AF_INET, SOCK_STREAM, 0);
-  addr.sin_family = AF_INET;
-  addr.sin_port = htons(port);
+  int sock = get_sock();
+  std::cout << "sock: " << sock << std::endl;
 
   try
   {
@@ -33,6 +29,7 @@ int main(int argc, char** argv)
     asio::io_context io_context;
     tcp::acceptor acceptor(io_context, tcp::endpoint(tcp::v4(), port));
 
+    // iterative server, see `tcp_daytime_server_sync.cpp`
     for (;;)
     {
       tcp::socket socket(io_context);
@@ -41,10 +38,13 @@ int main(int argc, char** argv)
 
       printf("Opening SocketOutputStream \n");
 
-      // Create an Arrow RecordBatchWriter
+      // Create a new output stream
       auto stream = SocketOutputStream::Open(sock).ValueOrDie();
+      // arrow::ipc stream writer
       auto writer = arrow::ipc::MakeStreamWriter(stream, table->schema()).ValueOrDie();
+      // write table into the output stream
       writer->WriteTable(*table).ok();
+      // close writer
       writer->Close().ok();
 
       printf("Table sent\n");

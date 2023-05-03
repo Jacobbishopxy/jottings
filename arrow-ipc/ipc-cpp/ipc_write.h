@@ -5,12 +5,17 @@
  * @brief:
  **/
 
+#ifndef __IPC_WRITE__H__
+#define __IPC_WRITE__H__
+
 #include <arrow/api.h>
 #include <arrow/io/api.h>
 #include <arrow/ipc/api.h>
 #include <string>
 
 arrow::Status write_ipc_file(std::string filename, std::shared_ptr<arrow::Table> table);
+
+int get_sock();
 
 class SocketOutputStream : public arrow::io::OutputStream
 {
@@ -32,3 +37,5 @@ private:
   std::shared_ptr<arrow::io::FileOutputStream> m_target;
   uint64_t m_position;
 };
+
+#endif //!__IPC_WRITE__H__

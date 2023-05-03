@@ -5,6 +5,9 @@
  * @brief:
  **/
 
+#include <iostream>
+#include <sys/socket.h>
+
 #include "ipc_write.h"
 
 // ================================================================================================
@@ -19,6 +22,11 @@ arrow::Status write_ipc_file(std::string filename, std::shared_ptr<arrow::Table>
   ARROW_RETURN_NOT_OK(writer->Close());
 
   return arrow::Status::OK();
+}
+
+int get_sock()
+{
+  return socket(AF_INET, SOCK_STREAM, 0);
 }
 
 SocketOutputStream::SocketOutputStream(std::shared_ptr<arrow::io::FileOutputStream> target)

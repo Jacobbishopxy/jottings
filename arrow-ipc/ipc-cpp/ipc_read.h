@@ -5,6 +5,9 @@
  * @brief:
  **/
 
+#ifndef __IPC_READ__H__
+#define __IPC_READ__H__
+
 #include <arrow/api.h>
 #include <arrow/io/api.h>
 #include <arrow/ipc/api.h>
@@ -36,3 +39,5 @@ private:
   int m_sock;
   int64_t m_pos;
 };
+
+#endif //!__IPC_READ__H__
