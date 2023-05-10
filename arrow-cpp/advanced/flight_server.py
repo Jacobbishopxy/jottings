@@ -44,13 +44,25 @@ class FlightServer(pa.flight.FlightServerBase):
     def do_put(self, context, descriptor, reader, writer):
         dataset = descriptor.path[0].decode("utf-8")
         dataset_path = self._repo / dataset
-        data_table = reader.read_all()
-        pa.parquet.write_table(data_table, dataset_path)
+        # (a) non-streaming
+        # data_table = reader.read_all()
+        # pa.parquet.write_table(data_table, dataset_path)
+
+        # (b) streaming
+        with dataset_path.open("wb") as sink:
+            with pa.parquet.ParquetWriter(sink, reader.schema) as writer:
+                for chunk in reader:
+                    writer.write_table(pa.Table.from_batches([chunk.data]))
 
     def do_get(self, context, ticket):
         dataset = ticket.ticket.decode("utf-8")
         dataset_path = self._repo / dataset
-        return pa.flight.RecordBatchStream(pa.parquet.read_table(dataset_path))
+        # (a) non-streaming
+        # return pa.flight.RecordBatchStream(pa.parquet.read_table(dataset_path))
+
+        # (b) streaming
+        reader = pa.parquet.ParquetFile(dataset_path)
+        return pa.flight.GeneratorStream(reader.schema_arrow, reader.iter_batches())
 
     def list_actions(self, context):
         return [("drop_dataset", "Delete a dataset.")]

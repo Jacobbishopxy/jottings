@@ -10,11 +10,21 @@ if __name__ == "__main__":
     client = pa.flight.connect("grpc+tcp://127.0.0.1:8815")
 
     # Upload a new dataset
-    data_table = pa.table([["Mario", "Luigi", "Peach"]], names=["Character"])
     upload_descriptor = pa.flight.FlightDescriptor.for_path("uploaded.parquet")
-    writer, _ = client.do_put(upload_descriptor, data_table.schema)
-    writer.write_table(data_table)
-    writer.close()
+    # (a) non-streaming
+    # data_table = pa.table([["Mario", "Luigi", "Peach"]], names=["Character"])
+    # writer, _ = client.do_put(upload_descriptor, data_table.schema)
+    # writer.write_table(data_table)
+    # writer.close()
+
+    # (b) streaming
+    NUM_BATCHES = 1024
+    ROWS_PER_BATCH = 4096
+    batch = pa.record_batch([pa.array(range(ROWS_PER_BATCH))], names=["ints"])
+    writer, _ = client.do_put(upload_descriptor, batch.schema)
+    with writer:
+        for _ in range(NUM_BATCHES):
+            writer.write_batch(batch)
 
     # Retrieve metadata of newly uploaded dataset
     flight = client.get_flight_info(upload_descriptor)
@@ -33,8 +43,15 @@ if __name__ == "__main__":
 
     # Read content of the dataset
     reader = client.do_get(flight.endpoints[0].ticket)
-    read_table = reader.read_all()
-    print(read_table.to_pandas().head())
+    # (a) non-streaming
+    # read_table = reader.read_all()
+    # print(read_table.to_pandas().head())
+
+    # (b) streaming
+    total_rows = 0
+    for chunk in reader:
+        total_rows += chunk.data.num_rows
+    print("Got ", total_rows, "rows total, expected ", NUM_BATCHES * ROWS_PER_BATCH)
 
     # Drop the newly uploaded dataset
     client.do_action(
