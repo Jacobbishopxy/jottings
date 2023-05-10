@@ -60,6 +60,17 @@ target_link_libraries(
     ArrowFlight::arrow_flight_shared
 )
 
+add_executable(
+    arrowcpp-flight-client
+    advanced/flight_client.cpp
+)
+target_link_libraries(
+    arrowcpp-flight-client PRIVATE
+    Arrow::arrow_shared
+    Parquet::parquet_shared
+    ArrowFlight::arrow_flight_shared
+)
+
 # ================================================================================================
 # Demo
 # ================================================================================================
