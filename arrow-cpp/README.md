@@ -8,9 +8,11 @@ A study material of Apache Arrow's official tutorial. Under the `/tutorial` fold
 
 - [Using Arrow C++ in your own project](https://arrow.apache.org/docs/cpp/build_system.html)
 
+- [Arrow flight RPC](https://arrow.apache.org/cookbook/cpp/flight.html)
+
 ## Notes
 
-- [Differnces between Arrow IPC and Parquet](https://stackoverflow.com/a/56481636)
+- [Differences between Arrow IPC and Parquet](https://stackoverflow.com/a/56481636)
 
 ## Misc
 

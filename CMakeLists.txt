@@ -8,6 +8,7 @@ project(Jotting LANGUAGES CXX VERSION 0.0.1)
 
 find_package(Arrow REQUIRED)
 find_package(ArrowDataset REQUIRED)
+find_package(ArrowFlight REQUIRED)
 find_package(Parquet REQUIRED)
 
 # ================================================================================================
