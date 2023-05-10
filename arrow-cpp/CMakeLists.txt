@@ -46,6 +46,21 @@ target_link_libraries(
 )
 
 # ================================================================================================
+# Advanced
+# ================================================================================================
+
+add_executable(
+    arrowcpp-flight-server
+    advanced/flight_server.cpp
+)
+target_link_libraries(
+    arrowcpp-flight-server PRIVATE
+    Arrow::arrow_shared
+    Parquet::parquet_shared
+    ArrowFlight::arrow_flight_shared
+)
+
+# ================================================================================================
 # Demo
 # ================================================================================================
 
