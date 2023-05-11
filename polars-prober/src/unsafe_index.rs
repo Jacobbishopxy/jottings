@@ -158,9 +158,9 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
                 // directly call `.get` method, which has a runtime casting (less efficiency)
                 // since we already use pattern matching on `self.data.dtype()`, this case
                 // is only for demonstrating purpose
-                let res: Box<dyn MyValueTrait> = match self.data.get(index) {
-                    AnyValue::Int64(v) => Box::new(v),
-                    _ => Box::new(Null),
+                let res: Box<dyn MyValueTrait> = match self.data.i64().unwrap().get(index) {
+                    Some(e) => Box::new(e),
+                    None => Box::new(Null),
                 };
 
                 let r = &self.cache as *const Box<dyn MyValueTrait>;

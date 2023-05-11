@@ -36,21 +36,21 @@ Extra [notes](./notes.md)
 
 By [oovm's RustTemplate](https://github.com/oovm/RustTemplate)
 
-| Emoji  | Meaning                      |
-|--------|------------------------------|
-| 🎂     | Project initialized!         |
-| 🎉     | Release new version          |
-| 🧪🔮   | Experimental code            |
-| 🔧🐛🐞 | Bug fix                      |
-| 🔒     | Security fix                 |
-| 🐣🐤🐥 | Add feature                  |
-| 📝🎀   | Documentation                |
-| 🚀     | Performance improve!         |
-| 🚧     | Work in progress             |
-| 🚨     | Test coverage improve!       |
-| 🚥     | CI improve!                  |
-| 🔥     | Remove code or files         |
-| 🧹     | Code refactor                |
-| 📈     | Add analytics or branch code |
-| 🤖     | Automation fix               |
-| 📦     | Update dependencies          |
+| Emoji    | Meaning                      | Code                                                |
+| -------- | ---------------------------- | --------------------------------------------------- |
+| 🎂       | Project initialized!         | `:birthday:`                                        |
+| 🎉       | Release new version          | `:tada:`                                            |
+| 🧪 🔮    | Experimental code            | `:test_tube:` `:crystal_ball:`                      |
+| 🔧 🐛 🐞 | Bug fix                      | `:wrench:` `:bug:` `:lady_beetle:`                  |
+| 🔒       | Security fix                 | `:lock:`                                            |
+| 🐣 🐤 🐥 | Add feature                  | `:hatching_chick:` `:baby_chick:` `:hatched_chick:` |
+| 📝 🎀    | Documentation                | `:memo:` `:ribbon:`                                 |
+| 🚀       | Performance improve!         | `:rocket:`                                          |
+| 🚧       | Work in progress             | `:construction:`                                    |
+| 🚨       | Test coverage improve!       | `:rotating_light:`                                  |
+| 🚥       | CI improve!                  | `:traffic_light:`                                   |
+| 🔥       | Remove code or files         | `:fire:`                                            |
+| 🧹       | Code refactor                | `:broom:`                                           |
+| 📈       | Add analytics or branch code | `:chart_with_upwards_trend:`                        |
+| 🤖       | Automation fix               | `:robot:`                                           |
+| 📦       | Update dependencies          | `:package:`                                         |
