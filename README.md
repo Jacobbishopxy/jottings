@@ -31,3 +31,26 @@
 - [Arrow IPC (C++ & Rust & Py)](./arrow-ipc/README.md)
 
 Extra [notes](./notes.md)
+
+## Commit Emoji
+
+By [oovm's RustTemplate](https://github.com/oovm/RustTemplate)
+
+| Emoji  | Meaning                      |
+|--------|------------------------------|
+| 🎂     | Project initialized!         |
+| 🎉     | Release new version          |
+| 🧪🔮   | Experimental code            |
+| 🔧🐛🐞 | Bug fix                      |
+| 🔒     | Security fix                 |
+| 🐣🐤🐥 | Add feature                  |
+| 📝🎀   | Documentation                |
+| 🚀     | Performance improve!         |
+| 🚧     | Work in progress             |
+| 🚨     | Test coverage improve!       |
+| 🚥     | CI improve!                  |
+| 🔥     | Remove code or files         |
+| 🧹     | Code refactor                |
+| 📈     | Add analytics or branch code |
+| 🤖     | Automation fix               |
+| 📦     | Update dependencies          |

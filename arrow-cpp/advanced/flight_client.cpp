@@ -129,7 +129,7 @@ arrow::Status Run(std::string filename, std::string dataset_dir)
   auto client = new SimpleClient();
   ARROW_RETURN_NOT_OK(client->Connect(location, dataset_dir));
 
-  while (true)
+  // while (true)
   {
     arrow::Status st = client->DoPut(filename);
 
