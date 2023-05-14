@@ -30,6 +30,8 @@
 
 - [Arrow IPC (C++ & Rust & Py)](./arrow-ipc/README.md)
 
+- [Arrow Flight (C++ & Rust & Py)](./arrow-flight/README.md)
+
 Extra [notes](./notes.md)
 
 ## Commit Emoji
