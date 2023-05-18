@@ -1,0 +1,10 @@
+[package]
+name = "rbmq-rs"
+authors = ["JacobX <jacobbishopxy@gmail.com>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+amqprs = "1"
+anyhow = "1"
+tokio = "1"

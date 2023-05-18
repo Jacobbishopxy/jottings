@@ -32,6 +32,8 @@
 
 - [Arrow Flight (C++ & Rust & Py)](./arrow-flight/README.md)
 
+- [RabbitMQ rs](./rbmq-rs/README.md)
+
 Extra [notes](./notes.md)
 
 ## Commit Emoji
