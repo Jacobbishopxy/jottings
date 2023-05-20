@@ -15,8 +15,17 @@ macro_rules! aem {
 }
 
 /// Open a connection
-pub async fn open_connection(host: &str, port: u16, user: &str, pass: &str) -> Result<Connection> {
-    let arg = OpenConnectionArguments::new(host, port, user, pass);
+pub async fn open_connection(
+    host: &str,
+    port: u16,
+    user: &str,
+    pass: &str,
+    vhost: Option<&str>,
+) -> Result<Connection> {
+    let mut arg = OpenConnectionArguments::new(host, port, user, pass);
+    if let Some(vh) = vhost {
+        arg.virtual_host(vh.as_ref());
+    }
 
     let conn = Connection::open(&arg).await.map_err(aem!())?;
 
@@ -48,7 +57,7 @@ pub async fn declare_queue(
     exchg: &str,
 ) -> Result<(String, u32, u32)> {
     let res = chan
-        .queue_declare(QueueDeclareArguments::durable_client_named(que))
+        .queue_declare(QueueDeclareArguments::xdurable_client_named(que))
         .await
         .map_err(aem!())?
         .unwrap();

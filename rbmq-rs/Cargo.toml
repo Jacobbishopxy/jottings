@@ -5,6 +5,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-amqprs = "1"
+amqprs = { version = "1", features = ["traces"] }
 anyhow = "1"
 tokio = "1"
+tracing = "0"
+tracing-subscriber = { version = "0", features = ["env-filter"] }
