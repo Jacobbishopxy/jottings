@@ -3,7 +3,7 @@
 //! date: 2023/05/20 21:01:38 Saturday
 //! brief:
 
-use amqprs::channel::BasicConsumeArguments;
+use amqprs::channel::{BasicConsumeArguments, BasicQosArguments};
 use amqprs::consumer::DefaultConsumer;
 use rbmq_rs::*;
 use tokio::sync::Notify;
@@ -37,16 +37,20 @@ async fn main() {
 
     let consumer_tag = "rbmq-rs";
 
-    // start consumer
+    // [Optional] extra setting for fair dispatching, unnecessary if only one consumer exists
+    // check: https://www.rabbitmq.com/tutorials/tutorial-two-python.html;
+    let args = BasicQosArguments::new(0, 1, true);
+    chan.basic_qos(args).await.unwrap();
+
+    // start consumer. multiple consumers can be put into a channel, and in this case,
+    // message will be send to consumers by round-robin dispatching.
     let args = BasicConsumeArguments::new(&que, consumer_tag)
         .manual_ack(false)
         .finish();
+    let consumer = DefaultConsumer::new(args.no_ack);
 
     // impl amqprs::consumer::AsyncConsumer for our CustomConsumer
-    let ct = chan
-        .basic_consume(DefaultConsumer::new(args.no_ack), args)
-        .await
-        .unwrap();
+    let ct = chan.basic_consume(consumer, args).await.unwrap();
     println!("consumer tag: {:?}", ct);
 
     // consume forever

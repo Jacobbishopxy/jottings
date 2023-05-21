@@ -27,7 +27,7 @@ async fn main() {
     let msg_bytes = String::from(
         r#"
             {
-                "publisher": "example"
+                "publisher": "example",
                 "data": "Hello, amqprs!"
             }
         "#,
