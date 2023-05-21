@@ -46,6 +46,65 @@ fn exec_and_print_with_buf(py_cmd: &str) -> std::io::Result<()> {
 
     cmd.wait()?;
 
+    if let Some(stdout) = &mut cmd.stdout {
+        let lines = BufReader::new(stdout).lines();
+
+        for line in lines {
+            println!("READ: {:?}", line?);
+        }
+    }
+
+    Ok(())
+}
+
+#[allow(dead_code)]
+fn exec_and_print_with_thread(py_cmd: &str) -> std::io::Result<()> {
+    let mut cmd = Command::new("bash")
+        .arg("-c")
+        .arg(format!(
+            "cd ~/Code/jotting/pycmd/scripts && {} dev.py",
+            py_cmd
+        ))
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    let child_stdout = cmd.stdout.take().unwrap();
+    let child_stderr = cmd.stderr.take().unwrap();
+
+    let (stdout_tx, stdout_rx) = std::sync::mpsc::channel();
+    let (stderr_tx, stderr_rx) = std::sync::mpsc::channel();
+
+    let stdout_thread = std::thread::spawn(move || {
+        let stdout_lines = BufReader::new(child_stdout).lines();
+        for line in stdout_lines {
+            let line = line.unwrap();
+            println!("{:?}", line);
+            stdout_tx.send(line).unwrap();
+        }
+    });
+
+    let stderr_thread = std::thread::spawn(move || {
+        let stderr_lines = BufReader::new(child_stderr).lines();
+        for line in stderr_lines {
+            let line = line.unwrap();
+            println!("{:?}", line);
+            stderr_tx.send(line).unwrap();
+        }
+    });
+
+    stdout_thread.join().unwrap();
+    stderr_thread.join().unwrap();
+
+    let status = cmd.wait()?;
+
+    let stdout = stdout_rx.into_iter().collect::<Vec<_>>();
+    let stderr = stderr_rx.into_iter().collect::<Vec<_>>();
+
+    println!("status: {:?}", status);
+    println!("stdout: {:?}", stdout);
+    println!("stderr: {:?}", stderr);
+
     Ok(())
 }
 
@@ -77,7 +136,8 @@ fn main() -> std::io::Result<()> {
 
     // exec_and_print_at_once(&py_cmd)?;
     // exec_and_print_with_buf(&py_cmd)?;
-    exec_and_print_inherit(&py_cmd)?;
+    exec_and_print_with_thread(&py_cmd)?;
+    // exec_and_print_inherit(&py_cmd)?;
 
     Ok(())
 }
