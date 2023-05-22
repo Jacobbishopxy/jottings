@@ -4,12 +4,20 @@
 //! brief:
 //!
 //! check <https://doc.rust-lang.org/std/process/struct.Command.html> for more.
+//! refference: https://www.nikbrendler.com/rust-process-communication/
 
+use std::fs::File;
+use std::io::Read;
 use std::io::{BufRead, BufReader};
-use std::process::{Command, Stdio};
+use std::os::fd::FromRawFd;
+use std::process::{ChildStderr, ChildStdout, Command, Stdio};
+use std::sync::mpsc::Sender;
+
+use anyhow::Result;
+use libc;
 
 #[allow(dead_code)]
-fn exec_and_print_at_once(py_cmd: &str) -> std::io::Result<()> {
+fn exec_and_print_at_once(py_cmd: &str) -> Result<()> {
     let output = Command::new("bash")
         .arg("-c")
         .arg(format!(
@@ -26,7 +34,26 @@ fn exec_and_print_at_once(py_cmd: &str) -> std::io::Result<()> {
 }
 
 #[allow(dead_code)]
-fn exec_and_print_with_buf(py_cmd: &str) -> std::io::Result<()> {
+fn exec_and_print_inherit(py_cmd: &str) -> Result<()> {
+    let mut cmd = Command::new("bash")
+        .arg("-c")
+        .arg(format!(
+            "cd ~/Code/jotting/pycmd/scripts && {} dev2.py",
+            py_cmd
+        ))
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .spawn()?;
+
+    // It's streaming here
+    let status = cmd.wait()?;
+    println!("Exited with status {:?}", status);
+
+    Ok(())
+}
+
+#[allow(dead_code)]
+fn exec_and_print_with_buf(py_cmd: &str) -> Result<()> {
     let mut cmd = Command::new("bash")
         .arg("-c")
         .arg(format!(
@@ -36,29 +63,41 @@ fn exec_and_print_with_buf(py_cmd: &str) -> std::io::Result<()> {
         .stdout(Stdio::piped())
         .spawn()?;
 
-    let stdout = cmd.stdout.as_mut().unwrap();
+    let stdout = cmd.stdout.take().unwrap();
     let stdout_reader = BufReader::new(stdout);
-    let stdout_lines = stdout_reader.lines();
 
-    for line in stdout_lines {
+    for line in stdout_reader.lines() {
         println!("READ: {:?}", line);
     }
 
-    cmd.wait()?;
+    let status = cmd.wait()?;
+    println!("status: {:?}", status);
 
-    if let Some(stdout) = &mut cmd.stdout {
-        let lines = BufReader::new(stdout).lines();
+    Ok(())
+}
 
-        for line in lines {
-            println!("READ: {:?}", line?);
-        }
+fn stdout_lines(stdout: ChildStdout, rec: Sender<String>) -> Result<()> {
+    for line in BufReader::new(stdout).lines() {
+        let line = line?;
+        println!("stdout > {:?}", line);
+        rec.send(line)?;
+    }
+
+    Ok(())
+}
+
+fn stderr_lines(stderr: ChildStderr, rec: Sender<String>) -> Result<()> {
+    for line in BufReader::new(stderr).lines() {
+        let line = line?;
+        println!("stderr > {:?}", line);
+        rec.send(line)?;
     }
 
     Ok(())
 }
 
 #[allow(dead_code)]
-fn exec_and_print_with_thread(py_cmd: &str) -> std::io::Result<()> {
+fn exec_and_print_with_thread(py_cmd: &str) -> Result<()> {
     let mut cmd = Command::new("bash")
         .arg("-c")
         .arg(format!(
@@ -75,69 +114,82 @@ fn exec_and_print_with_thread(py_cmd: &str) -> std::io::Result<()> {
     let (stdout_tx, stdout_rx) = std::sync::mpsc::channel();
     let (stderr_tx, stderr_rx) = std::sync::mpsc::channel();
 
-    let stdout_thread = std::thread::spawn(move || {
-        let stdout_lines = BufReader::new(child_stdout).lines();
-        for line in stdout_lines {
-            let line = line.unwrap();
-            println!("{:?}", line);
-            stdout_tx.send(line).unwrap();
-        }
+    let stdout_thread = std::thread::spawn(|| stdout_lines(child_stdout, stdout_tx));
+    let stderr_thread = std::thread::spawn(|| stderr_lines(child_stderr, stderr_tx));
+
+    stdout_thread
+        .join()
+        .map_err(|_| anyhow::anyhow!("thread join failed!"))??;
+    stderr_thread
+        .join()
+        .map_err(|_| anyhow::anyhow!("thread join failed!"))??;
+
+    let stdout_rx_thread = std::thread::spawn(move || loop {
+        let msg = stdout_rx.recv();
+        println!("stdout_rx: {:?}", msg);
+    });
+    let stderr_rx_thread = std::thread::spawn(move || loop {
+        let msg = stderr_rx.recv();
+        println!("stdout_rx: {:?}", msg);
     });
 
-    let stderr_thread = std::thread::spawn(move || {
-        let stderr_lines = BufReader::new(child_stderr).lines();
-        for line in stderr_lines {
-            let line = line.unwrap();
-            println!("{:?}", line);
-            stderr_tx.send(line).unwrap();
-        }
-    });
-
-    stdout_thread.join().unwrap();
-    stderr_thread.join().unwrap();
+    stdout_rx_thread
+        .join()
+        .map_err(|_| anyhow::anyhow!("thread join failed"))?;
+    stderr_rx_thread
+        .join()
+        .map_err(|_| anyhow::anyhow!("thread join failed"))?;
 
     let status = cmd.wait()?;
-
-    let stdout = stdout_rx.into_iter().collect::<Vec<_>>();
-    let stderr = stderr_rx.into_iter().collect::<Vec<_>>();
-
     println!("status: {:?}", status);
-    println!("stdout: {:?}", stdout);
-    println!("stderr: {:?}", stderr);
 
     Ok(())
 }
 
 #[allow(dead_code)]
-fn exec_and_print_inherit(py_cmd: &str) -> std::io::Result<()> {
-    let mut cmd = Command::new("bash")
+fn exec_and_print_by_unsafe_libc(py_cmd: &str) -> Result<()> {
+    let mut fds = [0i32; 2];
+    unsafe {
+        libc::pipe(&mut fds as *mut libc::c_int);
+        libc::dup2(libc::STDOUT_FILENO, fds[1] as libc::c_int);
+    }
+
+    Command::new("bash")
         .arg("-c")
         .arg(format!(
             "cd ~/Code/jotting/pycmd/scripts && {} dev.py",
             py_cmd
         ))
-        .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
-        .spawn()?;
+        .spawn()
+        .expect("true");
 
-    // It's streaming here
-    let status = cmd.wait()?;
-    println!("Exited with status {:?}", status);
+    println!("Yohoho!");
+    let mut r: File;
+
+    unsafe {
+        r = FromRawFd::from_raw_fd(fds[0] as libc::c_int);
+    }
+    let mut buffer = [0u8; 1024];
+    let count = r.read(&mut buffer).unwrap();
+
+    while count > 0 {
+        println!("{}", std::str::from_utf8(&buffer[0..count]).unwrap());
+    }
 
     Ok(())
 }
 
-// TODO: more flexible python calling: `conda activate [xxx]; python [py_script]`
-
-fn main() -> std::io::Result<()> {
-    let py_cmd = format!("{}/python", "/opt/homebrew/anaconda3/envs/py310/bin");
+fn main() -> Result<()> {
+    // let py_cmd = format!("{}/python - u", "/opt/homebrew/anaconda3/envs/py310/bin");
+    let py_cmd = format!("{}/python -u ", "/home/jacob/anaconda3/envs/py310/bin");
 
     // bash -c "cd ~/Code/jotting/pycmd/scripts/ && /opt/homebrew/anaconda3/envs/py310/bin/python dev.py"
 
     // exec_and_print_at_once(&py_cmd)?;
+    // exec_and_print_inherit(&py_cmd)?;
     // exec_and_print_with_buf(&py_cmd)?;
     exec_and_print_with_thread(&py_cmd)?;
-    // exec_and_print_inherit(&py_cmd)?;
+    // exec_and_print_by_unsafe_libc(&py_cmd)?;
 
     Ok(())
 }
