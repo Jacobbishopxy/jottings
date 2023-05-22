@@ -32,7 +32,7 @@ pub fn write_stream(addr: &str, schema: Schema, chunks: &[Chunk<Box<dyn Array>>]
         write::StreamWriter::new(&mut writer, write::WriteOptions { compression: None });
 
     stream.start(&schema, None)?;
-    for chk in chunks.iter() {
+    for chk in chunks {
         stream.write(chk, None)?;
     }
     stream.finish()?;

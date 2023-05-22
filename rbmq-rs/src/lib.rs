@@ -57,7 +57,7 @@ pub async fn declare_queue(
     exchg: &str,
 ) -> Result<(String, u32, u32)> {
     let res = chan
-        .queue_declare(QueueDeclareArguments::xdurable_client_named(que))
+        .queue_declare(QueueDeclareArguments::durable_client_named(que))
         .await
         .map_err(aem!())?
         .unwrap();
