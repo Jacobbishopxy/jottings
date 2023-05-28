@@ -40,6 +40,9 @@ async fn main() {
         .await
         .unwrap();
 
+    // channel/connection will be closed when drop.
+    // keep the `channel` and `connection` object from dropping
+    // before pub/sub is done.
     time::sleep(time::Duration::from_secs(1)).await;
     // explicitly close
     chan.close().await.unwrap();
