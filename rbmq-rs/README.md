@@ -26,3 +26,74 @@
 
 PS: 多个 consumer 绑定同一个队列的情况下，消息根据 round robin 的方式分配给不同的 consumer；可以设定 qos 参数调整分配
 方式（详解 <https://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.qos>）。
+
+## Qos 与 Manual Ack
+
+Qos（Quality of Service）即服务质量保证与 Manual Ack 手动消费都是用于更为细致的消息消费方式。
+
+Qos 参数：
+
+- `prefetch_size`：服务器传送最大内容，没有限制则为 0
+
+- `prefetch_count`：服务器每次传递的最大消息数，没有限制则为 0
+
+- `global`：如果 true，则当前设置将会应用于整个频道（channel）
+
+基础的应答方式：
+
+- `basic_ack`：成功消费，消息从队列中删除。参数：
+
+  - `delivery_tag`：服务器端向消费者推送消息，消息会携带一个deliveryTag参数，也可以成此参数为消息的唯一标识，是一个递增的正整数
+
+  - `multiple`：true表示确认所有消息，包括消息唯一标识小于等于deliveryTag的消息，false只确认deliveryTag指定的消息
+
+- `basic_nack`：拒绝消息，requeue=true 消息重新进入队列，反之被删除。参数：
+
+  - `delivery_tag`
+
+  - `multiple`
+
+  - `requeue`：true 表示拒绝的消息应重新入队，而不是否丢弃
+
+- `basic_reject`：等同于 nack
+
+- `basic_recover`：消息重入队列，requeue=true 发送给新的 consumer，反之发给相同的 consumer
+
+  - `如果为true,消息将会重新入队，可能会被发送给其它的消费者；如果为false,消息将会发送给相同的消费者`
+
+## DLX (dead letter exchange)
+
+文档：<https://www.rabbitmq.com/dlx.html>
+
+### 设置 dlx 主要的三种方式
+
+1. RabbitMQ Web UI
+
+1. 命令行：`rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"dev-dlx"}' --apply-to queues`，其中 `dev-dlx`
+为 exchange 名称，其应用于所有 queue（`--apply-to`）。
+生产环境中需要显式声明 routing key，例如 `x-dead-letter-routing-key: dl`
+
+1. 代码：
+
+    1. 声明 exchange：`channel.exchange_diclare`，类型：`direct`；
+
+    1. 声明 queue：`channel.queue_declare`，参数：`x-dead-letter-exchange: <exchange_name>`，其中 `<exchange_name>`
+    为第一步中的名称；channel 绑定该 queue；
+
+### Routing dl 消息的方法
+
+- 显式指定 routing key 为 dlx 的名称；
+
+- 或者 routing key 为原本 publish 的，但消息中设置了例如 `x-dead-letter-routing-key: dl`。
+
+### dl 消息
+
+dl（死信）一条消息将会修改其头信息：
+
+- exchange 名称被 dlx 名称代替；
+
+- routing key 可能会被指定成处理 dl 的名称代替；
+
+- 如果上述发送，那么 `CC` 头同样会被移除，同时，
+
+- `BCC` 头将会被每个 [Sender-selected distribution](https://www.rabbitmq.com/sender-selected.html) 移除
