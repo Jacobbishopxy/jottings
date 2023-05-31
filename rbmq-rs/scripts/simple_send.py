@@ -5,12 +5,23 @@
 
 import pika
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host="localhost"))
+host = "localhost"
+port = 5672
+username = "dev"
+password = "devpass"
+vhost = "devhost"
+
+credentials = pika.PlainCredentials(username=username, password=password)
+connection = pika.BlockingConnection(
+    pika.ConnectionParameters(
+        host=host, port=port, virtual_host=vhost, credentials=credentials
+    )
+)
 channel = connection.channel()
 
-channel.queue_declare(queue="hello")
-
-channel.basic_publish(exchange="", routing_key="hello", body="Hello World!")
+channel.basic_publish(
+    exchange="amq.direct", routing_key="task_queue", body="Hello World!"
+)
 print(" [x] Sent 'Hello World!'")
 
 connection.close()
