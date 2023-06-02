@@ -1,0 +1,122 @@
+# @author:	Jacob Xie
+# @date:	2023/06/02 23:27:12 Friday
+
+# ================================================================================================
+# update
+# ================================================================================================
+
+[tasks.cargo-aiodemo]
+cwd = "./aio-demo"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-algo]
+cwd = "./algo"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-arrowflight]
+cwd = "./arrow-flight/flight-rs"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-arrowipc]
+cwd = "./arrow-ipc/ipc-rs"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-errorhanding]
+cwd = "./error-handling"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-fsmrs]
+cwd = "./fsm/fsm-rs"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-futrs]
+cwd = "./fut-rs"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-hrtb]
+cwd = "./hrtb"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-lambdacomparison]
+cwd = "./lambda-comparison/lambda-rs"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-logtracing]
+cwd = "./log-tracing"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-polarsprober]
+cwd = "./polars-prober"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-pycmd]
+cwd = "./pycmd"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-pyo3mongo]
+cwd = "./pyo3mongo"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-rbmqrs]
+cwd = "./rbmq-rs"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-sqlxarrow2]
+cwd = "./sqlx-arrow2"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-stdtraits]
+cwd = "./std-traits"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-tastenom]
+cwd = "./taste-nom"
+command = "cargo"
+args = ["${@}"]
+
+[tasks.cargo-tile]
+cwd = "./tile"
+command = "cargo"
+args = ["${@}"]
+
+# ================================================================================================
+# sum
+# ================================================================================================
+
+[tasks.cargo]
+dependencies=[
+    "cargo-aiodemo",
+    "cargo-algo",
+    "cargo-arrowflight",
+    "cargo-arrowipc",
+    "cargo-errorhanding",
+    "cargo-fsmrs",
+    "cargo-futrs",
+    "cargo-hrtb",
+    "cargo-lambdacomparison",
+    "cargo-logtracing",
+    "cargo-polarsprober",
+    "cargo-pycmd",
+    "cargo-pyo3mongo",
+    "cargo-rbmqrs",
+    "cargo-sqlxarrow2",
+    "cargo-stdtraits",
+    "cargo-tastenom",
+    "cargo-tile"
+]

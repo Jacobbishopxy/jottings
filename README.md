@@ -36,6 +36,10 @@
 
 Extra [notes](./notes.md)
 
+## Cargo Make
+
+- `cargo make cargo ${arg}`, arg: `update/build/...`
+
 ## Commit Emoji
 
 By [oovm's RustTemplate](https://github.com/oovm/RustTemplate)
