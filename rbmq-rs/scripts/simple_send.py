@@ -11,6 +11,8 @@ username = "dev"
 password = "devpass"
 vhost = "devhost"
 
+exchange = "my-headers-exchange"
+
 credentials = pika.PlainCredentials(username=username, password=password)
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(
@@ -20,11 +22,20 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 
 channel.basic_publish(
-    exchange="amq.direct", routing_key="task_queue", body="Hello World!"
+    exchange=exchange,
+    routing_key="",
+    body="Hello World! --- 1",
+    properties=pika.BasicProperties(headers={"h1": "1"}),
 )
 print(" [x] Sent 'Hello World!'")
 
-connection.close()
+channel.basic_publish(
+    exchange=exchange,
+    routing_key="",
+    body="Hello World! --- 2",
+    properties=pika.BasicProperties(headers={"h1": "1", "c1": "true"}),
+)
+print(" [x] Sent 'Hello World!'")
 
-# channel.queue_declare("rbmq-rs-que", arguments={"x-message-ttl": 30000})
-# channel.queue_bind("rbmq-rs-que", "rbmq-rs-exchange")
+
+connection.close()
