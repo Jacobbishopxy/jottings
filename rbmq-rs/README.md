@@ -53,13 +53,25 @@ Qos 参数：
 
   - `multiple`
 
-  - `requeue`：true 表示拒绝的消息应重新入队，而不是否丢弃
+  - `requeue`：true 表示拒绝的消息应重新入队，反之丢弃
 
 - `basic_reject`：等同于 nack
 
 - `basic_recover`：消息重入队列，requeue=true 发送给新的 consumer，反之发给相同的 consumer
 
   - `如果为true,消息将会重新入队，可能会被发送给其它的消费者；如果为false,消息将会发送给相同的消费者`
+
+## Topics exchange 的匹配案例
+
+- Routing Key Pattern: It is the routing key pattern that binds a specific Queue with an Exchange.
+- Valid Routing Key: The message with this key reaches the linked Queue.
+- Invalid Routing Key: The message with this key does not reach the Queue.
+
+|Routing Key Pattern|Valid Routing Key|Invalid Routing Key|
+|---|---|---|
+|__health.*__ <br/>health as the first word followed by one word.|health.education,<br/>health.sports,<br/>health.anything|health,<br/>health.education.anything,<br/>health.education.sports|
+|__#.sports.*__ <br/>Zero or more words, then sports, after that exactly one word.|sports.education,<br/>sports.sports.sports,<br/>sports.sports|sports,<br/>education.sports,<br/>anything.sports.anything.xyz|
+|__#.education__ <br/>Zero or more words followed by the word education.|health.education,<br/>education.education,<br/>education|education.health,<br/>anything.education.anything|
 
 ## DLX (dead letter exchange)
 

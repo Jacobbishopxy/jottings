@@ -25,3 +25,6 @@ channel.basic_publish(
 print(" [x] Sent 'Hello World!'")
 
 connection.close()
+
+# channel.queue_declare("rbmq-rs-que", arguments={"x-message-ttl": 30000})
+# channel.queue_bind("rbmq-rs-que", "rbmq-rs-exchange")

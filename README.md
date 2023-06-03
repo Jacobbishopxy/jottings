@@ -38,7 +38,7 @@ Extra [notes](./notes.md)
 
 ## Cargo Make
 
-- `cargo make cargo ${arg}`, arg: `update/build/...`
+- `cargo make cargo ${arg}`, arg: `update/clean/build/...`
 
 ## Commit Emoji
 
