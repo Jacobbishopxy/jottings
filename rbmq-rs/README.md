@@ -27,6 +27,10 @@
 PS: 多个 consumer 绑定同一个队列的情况下，消息根据 round robin 的方式分配给不同的 consumer；可以设定 qos 参数调整分配
 方式（详解 <https://www.rabbitmq.com/amqp-0-9-1-reference.html#basic.qos>）。
 
+## RabbitMQ channel
+
+多路复用
+
 ## Qos 与 Manual Ack
 
 Qos（Quality of Service）即服务质量保证与 Manual Ack 手动消费都是用于更为细致的消息消费方式。
@@ -73,6 +77,21 @@ Qos 参数：
 |__#.sports.*__ <br/>Zero or more words, then sports, after that exactly one word.|sports.education,<br/>sports.sports.sports,<br/>sports.sports|sports,<br/>education.sports,<br/>anything.sports.anything.xyz|
 |__#.education__ <br/>Zero or more words followed by the word education.|health.education,<br/>education.education,<br/>education|education.health,<br/>anything.education.anything|
 
+## 三种 Consumer 行为
+
+- Consumer cancel: 消费者取消通知
+
+- Consumer prefetch: 消费者消息的预获取，参数如下
+
+  - `prefetch_size`：最大消息的占用大小，默认 `0` 为不设限；
+
+  - `prefetch_count`：最多消息的预获取数量，默认 `0` 为不设限；
+
+  - `global`：是否应用于整个频道。false，仅应用于此消费者；true，应用于整个频道，若是多消费者的情况，
+  那么所有消费者预获取的消息数总和的上限则被限制（该种情况下，即使先将单个 consumer 的预获取数值调高，其还是会受限于频道的总数值）。
+
+- Consumer priorities: 消费者优先级，（队列中多消费者的情况下）优先级高的消费者优先获取消息
+
 ## DLX (dead letter exchange)
 
 文档：<https://www.rabbitmq.com/dlx.html>
@@ -81,16 +100,20 @@ Qos 参数：
 
 1. RabbitMQ Web UI
 
-1. 命令行：`rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"dev-dlx"}' --apply-to queues`，其中 `dev-dlx`
-为 exchange 名称，其应用于所有 queue（`--apply-to`）。
-生产环境中需要显式声明 routing key，例如 `x-dead-letter-routing-key: dl`
+1. 命令行：
+
+    ```sh
+    `rabbitmqctl set_policy DLX ".*" '{"dead-letter-exchange":"dev-dlx"}' --apply-to queues`
+    ```
+
+    其中 `dev-dlx` 为 exchange 名称，其应用于所有 queue（`--apply-to`）。
+    生产环境中需要显式声明 routing key，例如 `x-dead-letter-routing-key: dl`
 
 1. 代码：
 
     1. 声明 exchange：`channel.exchange_diclare`，类型：`direct`；
 
-    1. 声明 queue：`channel.queue_declare`，参数：`x-dead-letter-exchange: <exchange_name>`，其中 `<exchange_name>`
-    为第一步中的名称；channel 绑定该 queue；
+    1. 声明 queue：`channel.queue_declare`，参数：`x-dead-letter-exchange: <exchange_name>`，其中 `<exchange_name>` 为第一步中的名称；channel 绑定该 queue；
 
 ### Routing dl 消息的方法
 
