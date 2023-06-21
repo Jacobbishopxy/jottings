@@ -77,7 +77,11 @@ Qos 参数：
 |__#.sports.*__ <br/>Zero or more words, then sports, after that exactly one word.|sports.education,<br/>sports.sports.sports,<br/>sports.sports|sports,<br/>education.sports,<br/>anything.sports.anything.xyz|
 |__#.education__ <br/>Zero or more words followed by the word education.|health.education,<br/>education.education,<br/>education|education.health,<br/>anything.education.anything|
 
-## 三种 Consumer 行为
+## Consumer
+
+文档：<https://www.rabbitmq.com/consumers.html>
+
+### 三种 Consumer 行为
 
 - Consumer cancel: 消费者取消通知
 
@@ -95,6 +99,7 @@ Qos 参数：
 ## DLX (dead letter exchange)
 
 文档：<https://www.rabbitmq.com/dlx.html>
+文章：<https://www.cloudamqp.com/blog/when-and-how-to-use-the-rabbitmq-dead-letter-exchange.html>
 
 ### 设置 dlx 主要的三种方式
 
