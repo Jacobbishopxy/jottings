@@ -34,6 +34,8 @@
 
 - [RabbitMQ rs](./rbmq-rs/README.md)
 
+- [Pyo3 async](./pyo3async/README.md)
+
 Extra [notes](./notes.md)
 
 ## Cargo Make
