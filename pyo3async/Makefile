@@ -2,5 +2,5 @@
 build:
 	maturin build
 
-install:
+install: build
 	pip install -I ./target/wheels/*.whl

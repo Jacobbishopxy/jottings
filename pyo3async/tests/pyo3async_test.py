@@ -6,7 +6,7 @@
 import logging
 import asyncio
 
-from pyo3async import rust_sleep, rust_log
+from pyo3async import rust_sleep, rust_log, PA, rust_sleep_print
 
 print("pyo3async test case")
 
@@ -30,3 +30,27 @@ async def py_sleep():
 
 
 asyncio.run(py_sleep())
+
+
+pa = PA(1, "Jacob", ["a", "b", "c"])
+
+print(pa.to_json())
+
+print(pa.key)
+print(pa.name)
+print(pa.props)
+
+pa.name = "JacobX"
+print(pa.name)
+
+pa.props = pa.props + ["tada"]
+print(pa.props)
+
+
+async def py_sleep_print(secs: int, pa: PA) -> PA:
+    return await rust_sleep_print(secs, pa)
+
+
+async_pa = asyncio.run(py_sleep_print(5, pa))
+
+print(async_pa.to_json())
