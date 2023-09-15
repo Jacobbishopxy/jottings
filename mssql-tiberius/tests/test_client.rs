@@ -15,7 +15,7 @@ async fn test_connection() -> anyhow::Result<()> {
     let conn = std::env::var("CONN")?;
     println!("CONN: {:?}", conn);
 
-    let config = Config::from_jdbc_string(&conn)?;
+    let config = Config::from_ado_string(&conn)?;
 
     let tcp = TcpStream::connect(config.get_addr()).await?;
     tcp.set_nodelay(true)?;
