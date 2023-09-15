@@ -55,6 +55,11 @@ cwd = "./log-tracing"
 command = "cargo"
 args = ["${@}"]
 
+[tasks.cargo-mssqltiberius]
+cwd = "./mssql-tiberius"
+command = "cargo"
+args = ["${@}"]
+
 [tasks.cargo-polarsprober]
 cwd = "./polars-prober"
 command = "cargo"
@@ -116,6 +121,7 @@ dependencies = [
     "cargo-hrtb",
     "cargo-lambdacomparison",
     "cargo-logtracing",
+    "cargo-mssqltiberius",
     "cargo-polarsprober",
     "cargo-pycmd",
     "cargo-pyo3async",
