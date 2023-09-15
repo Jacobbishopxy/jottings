@@ -147,7 +147,7 @@ where
 fn test_ref_from_generic_type() {
     let tu = TaskUnit::new("di", "dri", "ti");
 
-    let tur = ATaskUnitRef::from((&tu).borrow());
+    let tur = ATaskUnitRef::from(&tu);
 
     println!("{:?}", tur);
 }

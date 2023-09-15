@@ -65,6 +65,11 @@ cwd = "./pycmd"
 command = "cargo"
 args = ["${@}"]
 
+[tasks.cargo-pyo3async]
+cwd = "./pyo3async"
+command = "cargo"
+args = ["${@}"]
+
 [tasks.cargo-pyo3mongo]
 cwd = "./pyo3mongo"
 command = "cargo"
@@ -100,7 +105,7 @@ args = ["${@}"]
 # ================================================================================================
 
 [tasks.cargo]
-dependencies=[
+dependencies = [
     "cargo-aiodemo",
     "cargo-algo",
     "cargo-arrowflight",
@@ -113,10 +118,11 @@ dependencies=[
     "cargo-logtracing",
     "cargo-polarsprober",
     "cargo-pycmd",
+    "cargo-pyo3async",
     "cargo-pyo3mongo",
     "cargo-rbmqrs",
     "cargo-sqlxarrow2",
     "cargo-stdtraits",
     "cargo-tastenom",
-    "cargo-tile"
+    "cargo-tile",
 ]
