@@ -1,22 +1,20 @@
-//! file: test_client.rs
+//! file: test_client2.rs
 //! author: Jacob Xie
-//! date: 2023/09/15 14:43:30 Friday
+//! date: 2023/09/16 15:54:50 Saturday
 //! brief:
 
-use dotenv::dotenv;
-use tiberius::{Client, Config};
+use tiberius::{AuthMethod, Client, Config};
 use tokio::net::TcpStream;
 use tokio_util::compat::TokioAsyncWriteCompatExt;
 
 #[tokio::test]
 async fn test_connection() -> anyhow::Result<()> {
-    dotenv().ok();
+    let mut config = Config::new();
 
-    let conn = std::env::var("CONN")?;
-    println!("CONN: {:?}", conn);
-
-    // let config = Config::from_jdbc_string(&conn)?;
-    let config = Config::from_ado_string(&conn)?;
+    config.host("localhost");
+    config.port(1433);
+    config.authentication(AuthMethod::sql_server("dev", "StrongPassword123"));
+    config.trust_cert();
 
     let tcp = TcpStream::connect(config.get_addr()).await?;
     tcp.set_nodelay(true)?;

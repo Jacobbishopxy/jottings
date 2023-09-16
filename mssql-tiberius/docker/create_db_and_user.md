@@ -1,5 +1,7 @@
 # Create DB and User
 
+## Ubuntu
+
 ```sh
 sudo docker exec -it mssql-dev "bash"
 ```
@@ -25,3 +27,15 @@ GO
 EXEC sp_addrolemember 'db_owner', 'dev';
 GO
 ```
+
+## Mac
+
+```sh
+brew install sqlcmd
+```
+
+```sh
+sqlcmd -S localhost -U SA -P "Dev_123a"
+```
+
+The rest is the same as above.
