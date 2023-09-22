@@ -81,4 +81,5 @@ add_subdirectory(./ptr ptr)
 add_subdirectory(./stl-cpp stlcpp)
 add_subdirectory(./arrow-ipc/ipc-cpp arwipc)
 add_subdirectory(./arrow-flight/flight-cpp arwflt)
+add_subdirectory(./traits-cpp tcpp)
 
