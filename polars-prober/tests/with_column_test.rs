@@ -16,7 +16,7 @@ fn with_column_success() {
         .unwrap()
         .utf8()
         .unwrap()
-        .apply(|t| Cow::Owned(t[..6].to_owned()));
+        .apply(|t| t.map(|s| Cow::from(&s[..6])));
     new_ticker.rename("new_ticker");
 
     df.with_column(new_ticker).unwrap();
