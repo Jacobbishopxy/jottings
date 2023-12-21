@@ -36,6 +36,8 @@
 
 - [Pyo3 async](./pyo3async/README.md)
 
+- [CXX demo](./cxx-demo/README.md)
+
 Extra [notes](./notes.md)
 
 ## Cargo Make
