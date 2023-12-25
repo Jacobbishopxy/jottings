@@ -19,6 +19,9 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
      -DARROW_FLIGHT=ON \
      -DARROW_PARQUET=ON \
      .
+
+# MacOS
+# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/homebrew/lib
 sudo make all install -sj
 
 

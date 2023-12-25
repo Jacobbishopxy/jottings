@@ -27,9 +27,7 @@ class BlobstoreClient::impl
   std::unordered_map<uint64_t, Blob> blobs;
 };
 
-BlobstoreClient::BlobstoreClient() : impl(new class BlobstoreClient::impl)
-{
-}
+BlobstoreClient::BlobstoreClient() : impl(new class BlobstoreClient::impl) {}
 
 // BlobstoreClient::BlobstoreClient() {}
 
