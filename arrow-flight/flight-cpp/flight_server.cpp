@@ -153,7 +153,7 @@ arrow::Status SimpleServer::GetSchema(
   std::cout << "GetSchema" << std::endl;
 
   ARROW_ASSIGN_OR_RAISE(auto file_info, FileInfoFromDescriptor(descriptor));
-  ARROW_ASSIGN_OR_RAISE(auto schema, MakeSchema(file_info));
+  ARROW_ASSIGN_OR_RAISE(*schema, MakeSchema(file_info));
 
   return arrow::Status::OK();
 }
