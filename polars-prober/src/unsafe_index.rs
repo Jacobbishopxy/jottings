@@ -1,6 +1,6 @@
 //! Test
 
-use std::{fmt::Debug, ops::Index};
+use std::{cell::UnsafeCell, fmt::Debug, ops::Index};
 
 use polars::prelude::*;
 
@@ -113,7 +113,7 @@ fn my_value_from_x() {
 
 struct MySeriesIndexing<'a> {
     data: &'a Series,
-    cache: Box<dyn MyValueTrait>,
+    cache: UnsafeCell<Box<dyn MyValueTrait>>,
 }
 
 #[allow(dead_code)]
@@ -121,7 +121,7 @@ impl<'a> MySeriesIndexing<'a> {
     fn new(series: &'a Series) -> Self {
         Self {
             data: series,
-            cache: Box::new(Null),
+            cache: UnsafeCell::new(Box::new(Null)),
         }
     }
 }
@@ -138,14 +138,9 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
                     None => Box::new(Null),
                 };
 
-                // turn `cache` into an immutable raw pointer
-                let r = &self.cache as *const Box<dyn MyValueTrait>;
-                // turn immutable raw pointer into a mutable pointer
-                let m = r as *mut Box<dyn MyValueTrait>;
-                // assign result to mutable pointer
-                unsafe { *m = res };
+                unsafe { *(self.cache.get()) = res };
 
-                self.cache.as_ref()
+                unsafe { (*self.cache.get()).as_ref() }
             }
             DataType::UInt8 => todo!(),
             DataType::UInt16 => todo!(),
@@ -163,11 +158,9 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
                     None => Box::new(Null),
                 };
 
-                let r = &self.cache as *const Box<dyn MyValueTrait>;
-                let m = r as *mut Box<dyn MyValueTrait>;
-                unsafe { *m = res };
+                unsafe { *(self.cache.get()) = res };
 
-                self.cache.as_ref()
+                unsafe { (*self.cache.get()).as_ref() }
             }
             DataType::Float32 => todo!(),
             DataType::Float64 => todo!(),
@@ -185,4 +178,5 @@ fn my_series_index_success() {
 
     println!("{:?}", &s[1]);
     println!("{:?}", &s[3]);
+    println!("{:?}", &s[6]);
 }
