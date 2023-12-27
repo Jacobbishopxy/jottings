@@ -5,7 +5,7 @@
  * @brief:
  *
  * compile:
- * g++ -I /opt/eigen-3.4.0 simple.cc -o simple
+ * g++ -I /usr/local/include/eigen3/ simple.cc -o simple
  **/
 
 #include <Eigen/Dense>
