@@ -23,6 +23,7 @@ impl<'a> From<AnyValue<'a>> for MyValue {
     }
 }
 
+#[allow(dead_code)]
 struct MySeries {
     data: Series,
     dtype: DataType,

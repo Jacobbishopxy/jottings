@@ -33,18 +33,28 @@ impl MyValueTrait for Null {
 #[allow(dead_code)]
 struct MyGenericValue<T: MyValueTrait>(T);
 
+#[allow(dead_code)]
+impl<T: MyValueTrait> MyGenericValue<T> {
+    fn dtype(&self) -> &'static str {
+        T::dtype(&self.0)
+    }
+}
+
 #[test]
 fn my_generic_value_not_same_size() {
     let v1 = MyGenericValue(true);
     println!("{:?}", std::mem::size_of_val(&v1));
+    print!("{:?}", v1.dtype());
 
     let v2 = MyGenericValue(1i64);
     println!("{:?}", std::mem::size_of_val(&v2));
+    print!("{:?}", v2.dtype());
 
     assert_ne!(std::mem::size_of_val(&v1), std::mem::size_of_val(&v2));
 }
 
 // This struct won't work, because when impl `Index`, there is no way to hold the original variable which is also UnSized.
+#[allow(dead_code)]
 #[derive(Debug)]
 struct MyRefValue<'a>(&'a dyn MyValueTrait);
 
@@ -65,6 +75,7 @@ fn my_ref_value_as_ref() {
     println!("{:?}", dvr);
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct MyValue(Box<dyn MyValueTrait>);
 

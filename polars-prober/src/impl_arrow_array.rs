@@ -180,6 +180,10 @@ where
             len,
         }
     }
+
+    fn type_name() -> &'static str {
+        T::type_name()
+    }
 }
 
 #[allow(dead_code)]
@@ -202,6 +206,7 @@ fn write_uuid_success() -> Result<(), Error> {
     let cap = 5;
 
     let mut array_builder = MyObjectArrayBuilder::new(cap);
+    print!("{:?}", array_builder.values.first());
 
     for _ in 0..cap {
         array_builder.append_value(MyUuid::new());

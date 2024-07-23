@@ -2,6 +2,21 @@
 
 ## Cpp
 
+- setting `clangd` and `clang-format` in VSCode config file `.vscode/settings.json`:
+
+    ```json
+    ...
+    "clangd.path": "/opt/clangd_18.1.3/bin/clangd",
+    "clangd.arguments": [
+        "--compile-commands-dir=${workspaceFolder}/build",
+        "--completion-style=detailed",
+        "--header-insertion=never"
+    ],
+    "clang-format.language.cpp.style": "file",
+    "clang-format.executable": "/usr/bin/clang-format-15",
+    ...
+    ```
+
 - Setting `-std=c++20` in VSCode config file `.vscode/c_cpp_properties.json`:
 
     ```json

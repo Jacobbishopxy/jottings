@@ -61,7 +61,7 @@ By [oovm's RustTemplate](https://github.com/oovm/RustTemplate)
 | 🚧       | Work in progress             | `:construction:`                                    |
 | 🚨       | Test coverage improve!       | `:rotating_light:`                                  |
 | 🚥       | CI improve!                  | `:traffic_light:`                                   |
-| 🔥       | Remove code or files         | `:fire:`                                            |
+| 🔥🧨     | Remove code or files         | `:fire:` `:firecracker:`                            |
 | 🧹       | Code refactor                | `:broom:`                                           |
 | 📈       | Add analytics or branch code | `:chart_with_upwards_trend:`                        |
 | 🤖       | Automation fix               | `:robot:`                                           |
