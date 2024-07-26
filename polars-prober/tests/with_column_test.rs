@@ -14,7 +14,7 @@ fn with_column_success() {
     let mut new_ticker = df
         .column("ticker")
         .unwrap()
-        .utf8()
+        .str()
         .unwrap()
         .apply(|t| t.map(|s| Cow::from(&s[..6])));
     new_ticker.rename("new_ticker");

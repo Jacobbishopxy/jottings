@@ -175,7 +175,7 @@ impl<'a> Index<usize> for MySeriesIndexing<'a> {
             }
             DataType::Float32 => todo!(),
             DataType::Float64 => todo!(),
-            DataType::Utf8 => todo!(),
+            DataType::String => todo!(),
             _ => unimplemented!(),
         }
     }

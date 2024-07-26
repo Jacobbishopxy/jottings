@@ -39,7 +39,7 @@ fn join_test_case2() {
     println!("inner:\n{:?}", df_inner);
 
     let df_outer = df1
-        .join(&df2, ["Fruit"], ["Name"], JoinArgs::new(JoinType::Outer))
+        .join(&df2, ["Fruit"], ["Name"], JoinArgs::new(JoinType::Full))
         .unwrap();
     println!("outer:\n{:?}", df_outer);
 }

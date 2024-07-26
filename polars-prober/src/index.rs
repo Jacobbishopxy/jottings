@@ -232,8 +232,8 @@ impl Index<usize> for MySeriesIndexing {
             DataType::Int64 => get_index_value!(self, index, i64),
             DataType::Float32 => get_index_value!(self, index, f32),
             DataType::Float64 => get_index_value!(self, index, f64),
-            DataType::Utf8 => {
-                let res: Box<dyn MyValueTrait> = match self.data.utf8().unwrap().get(index) {
+            DataType::String => {
+                let res: Box<dyn MyValueTrait> = match self.data.str().unwrap().get(index) {
                     Some(v) => Box::new(v.to_string()),
                     None => Box::new(Null),
                 };

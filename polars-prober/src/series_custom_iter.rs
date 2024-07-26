@@ -16,7 +16,7 @@ impl<'a> From<AnyValue<'a>> for MyValue {
     fn from(av: AnyValue<'a>) -> Self {
         match av {
             AnyValue::Boolean(v) => MyValue::Bool(v),
-            AnyValue::Utf8(v) => MyValue::String(v.to_owned()),
+            AnyValue::String(v) => MyValue::String(v.to_owned()),
             AnyValue::UInt8(v) => MyValue::Integer(v.into()),
             _ => unimplemented!(),
         }
@@ -57,7 +57,7 @@ enum MySeriesIntoIterator {
     U64(UInt64Chunked, usize, usize),
     F32(Float32Chunked, usize, usize),
     F64(Float64Chunked, usize, usize),
-    Str(Utf8Chunked, usize, usize),
+    Str(StringChunked, usize, usize),
 }
 
 impl Iterator for MySeriesIntoIterator {
