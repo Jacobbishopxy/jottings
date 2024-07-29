@@ -3,13 +3,13 @@
 //! date: 2023/09/22 15:37:44 Friday
 //! brief:
 
-#[allow(dead_code)]
+#![allow(dead_code)]
+
 struct FqxData<const W: usize, T> {
     columns: [String; W],
     data: Vec<[T; W]>,
 }
 
-#[allow(dead_code)]
 impl<const W: usize, T> FqxData<W, T> {
     fn new<S>(columns: [S; W], data: Vec<[T; W]>) -> Self
     where

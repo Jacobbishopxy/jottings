@@ -13,3 +13,4 @@ target/
 
 /.vscode
 build
+bin
