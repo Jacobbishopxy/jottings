@@ -30,6 +30,7 @@ impl FromStr for SqlBuilder {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct SqlConnInfo {
     pub driver: SqlBuilder,

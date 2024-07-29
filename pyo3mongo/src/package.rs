@@ -129,6 +129,7 @@ pub struct EdgeInput {
 #[pymethods]
 impl EdgeInput {
     #[new]
+    #[pyo3(signature = (source, target, weight, label))]
     fn new(source: String, target: String, weight: Option<f64>, label: Option<String>) -> Self {
         EdgeInput {
             source,
@@ -193,6 +194,7 @@ impl PyGraph {
     }
 
     #[pyo3(text_signature = "($self, vertex_id, label, depth)")]
+    #[pyo3(signature = (vertex_id, label, depth))]
     pub fn get_graph(
         self_: PyRef<'_, Self>,
         vertex_id: String,
@@ -214,7 +216,7 @@ impl PyGraph {
 }
 
 #[pymodule]
-fn p3m(_py: Python, m: &PyModule) -> PyResult<()> {
+fn p3m(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Vertex>()?;
     m.add_class::<Edge>()?;
     m.add_class::<EdgeInput>()?;

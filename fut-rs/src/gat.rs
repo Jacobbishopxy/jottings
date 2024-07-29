@@ -6,7 +6,8 @@
 use anyhow::Result;
 use std::future::Future;
 
-pub trait FutMeta: Sized {
+#[allow(dead_code)]
+trait FutMeta: Sized {
     // async function's return for self constructor
     type FutSelf<'a>: Future<Output = Result<Self>>
     where
@@ -16,9 +17,10 @@ pub trait FutMeta: Sized {
 
     // fn new_empty<'e>() -> Self::FutSelf<'e>;
 
-    // async fn another_new(path: &str) -> Result<Self>;
+    async fn another_new(path: &str) -> Result<Self>;
 }
 
+#[allow(dead_code)]
 struct FutExec(String);
 
 impl FutMeta for FutExec {
@@ -30,17 +32,17 @@ impl FutMeta for FutExec {
 
     // error: concrete type differs from previous defining opaque type use
     // fn new_empty<'e>() -> Self::FutSelf<'e> {
-    // async { Ok(Self("".to_string())) }
+    //     async { Ok(Self("".to_string())) }
     // }
 
-    // async fn another_new(path: &str) -> Result<Self> {
-    //     Ok(Self(path.to_string()))
-    // }
+    async fn another_new(path: &str) -> Result<Self> {
+        Ok(Self(path.to_string()))
+    }
 }
 
-// #[tokio::test]
-// async fn fut_exec_test() {
-//     let fe = FutExec::another_new("path").await;
+#[tokio::test]
+async fn fut_exec_test() {
+    let fe = FutExec::another_new("path").await;
 
-//     assert!(fe.is_ok());
-// }
+    assert!(fe.is_ok());
+}

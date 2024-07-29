@@ -2,6 +2,7 @@
 
 #![feature(type_alias_impl_trait)]
 #![feature(impl_trait_in_assoc_type)]
+#![allow(dead_code)]
 
 mod case_asmut;
 mod commands;

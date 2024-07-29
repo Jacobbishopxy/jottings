@@ -2,6 +2,8 @@
 //!
 //! https://github.com/dtolnay/ref-cast
 
+#![allow(dead_code)]
+
 use std::ops::Index;
 
 use ref_cast::RefCast;
